@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import csv
 
-with open ('UofO_Courses.html') as html_file:
+with open ('./corpus/UofO_Courses.html') as html_file:
     soup = BeautifulSoup(html_file, 'html5lib')
 
 csv_file = open('parsed_UofO_Courses.csv', 'w')
@@ -21,16 +21,17 @@ for course in soup.find_all('div', class_='courseblock'):
         course_description = course.find('p', class_='courseblockdesc noindent').text
 
     csv_writer.writerow([course_title.encode('utf-8', errors='ignore'), course_description.encode('utf-8', errors='ignore')])
+csv_file.close()
 
 # Export to html
-f = open("parsed_UofO_Courses.html", "w")
+html_file = open("parsed_UofO_Courses.html", "w")
 for course in soup.find_all('div', class_='courseblock'):
     
     course_title = course.find('p', class_='courseblocktitle noindent')
     course_description = course.find('p', class_='courseblockdesc noindent')
 
-    f.write(str(course_title))
-    f.write(str(course_description))
-f.close()
+    html_file.write(str(course_title))
+    html_file.write(str(course_description))
+html_file.close()
 
    
