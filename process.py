@@ -22,20 +22,10 @@ STOP_WORDS = CUSTOM_STOP_WORDS + NLTK_WORDS
 DICTIONARY = {}
 INVERTED_INDEX = collections.defaultdict(list)
 
-# lancaster=LancasterStemmer()
-
 class Node:
     def __init__(self, courseTitle=None, courseDesc=None):
         self.courseTitle = courseTitle
         self.courseDesc = courseDesc
-
-# class IndexNode:
-# 	def __init__(self, valList):
-# 		self.valList = []
-
-def tokenize_row(row):
-	title = word_tokenize(row[0]) #row[0] = title
-	desc = word_tokenize(row[1]) #row[1] = desctription
 	
 def build_dictionary():
 	csvDataFile = open('./corpus/parsed_UofO_Courses.csv')
