@@ -8,6 +8,8 @@ import collections
 
 import csv
 
+import json
+
 df = pd.read_csv("./corpus/parsed_UofO_Courses.csv")
 lemmatizer = WordNetLemmatizer()
 
@@ -17,13 +19,15 @@ CUSTOM_STOP_WORDS = ['course', 'knowledge', 'business', 'effectively','student',
 NLTK_WORDS = stopwords.words('english')
 STOP_WORDS = CUSTOM_STOP_WORDS + NLTK_WORDS
 
-DICTIONARY = open('dictionary.csv', 'w')
-
+DICTIONARY = {}
 INVERTED_INDEX = collections.defaultdict(list)
+
+class Node:
+    def __init__(self, courseTitle=None, courseDesc=None):
+        self.courseTitle = courseTitle
+        self.courseDesc = courseDesc
 	
 def build_dictionary():
-	dictionary_writer = csv.writer(DICTIONARY)
-	dictionary_writer.writerow(['docID', 'document'])
 	csvDataFile = open('./corpus/parsed_UofO_Courses.csv')
 	csvReader = csv.reader(csvDataFile)
 
@@ -31,13 +35,12 @@ def build_dictionary():
 	for row in csvReader:
 		title = row[0]
 		description = row[1]
-		title_desc = title + description
-		# newNode = Node(title, description)
-		# DICTIONARY[i] = newNode
-		dictionary_writer.writerow([i,title_desc])
+		newNode = Node(title, description)
+		DICTIONARY[i] = newNode
 		i+=1
-		
+
 	csvDataFile.close()
+
 
 def build_index():
 	csvDataFile = open('./corpus/parsed_UofO_Courses.csv')
@@ -60,22 +63,21 @@ def build_index():
 			
 			if word in STOP_WORDS:
 				continue
+			flag=True
 
-			INVERTED_INDEX[word].append(i)
-		i+=1 
+			for kw in INVERTED_INDEX[word] :
+				if kw[0] == i :
+					kw[1]=kw[1]+1
+					flag=False
+			if flag:
+				INVERTED_INDEX[word].append([i,1])
+		i+=1
 	csvDataFile.close()
-
-
-def export_to_csv(invertedMap):
-
-	index_file = open('index_file.csv', 'w')
-	index = csv.writer(index_file)
-	index.writerow(['key', 'docID_list'])
-
-	for k, v in invertedMap.items():
-		index.writerow([k, v])
-
-	index_file.close()
-
-build_index()
-export_to_csv(INVERTED_INDEX)
+def build_indeverted_csv():
+	inverted_csv_file = open('./corpus/inverted_UofO_Courses.csv', 'w')
+	csv_writer = csv.writer(inverted_csv_file)
+	csv_writer.writerow(['Term', 'DocID&Sequence'])
+	for key in INVERTED_INDEX:
+		csv_writer.writerow([key, INVERTED_INDEX[key]])
+	inverted_csv_file.close()
+	
