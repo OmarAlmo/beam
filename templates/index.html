@@ -1,5 +1,4 @@
 <!DOCTYPE HTML>
-
 <html>
 
 <head>
@@ -15,11 +14,11 @@
         </header>
 
         <!-- Search Form -->
-        <form id="signup-form" method="post" action="/result">
-            <input type="text" name="search-bar" placeholder="Search.."><br>
+        <form method="POST" action="{{ url_for('handle_data') }}">
+            <input type="text" name="query" placeholder="Search.."><br>
 
-            <input type="radio" name="module" value="boolean"> Boolean<br>
-            <input type="radio" name="module" value="vsm"> VSM<br>
+            <input type="radio" name="model" value="boolean"> Boolean<br>
+            <input type="radio" name="model" value="vsm"> VSM<br>
 
             <input name='search-button' type='submit' value='search' /><br>
         </form>

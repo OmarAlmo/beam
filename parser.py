@@ -15,23 +15,16 @@ for course in soup.find_all('div', class_='courseblock'):
         course_title = ""
     else:
         course_title = course.find('p', class_='courseblocktitle noindent').text
+        course_title = " ".join(course_title.split())
+        if ("3 crédits" in course_title) or ("è" in course_title):
+            continue
+    
     if course.find('p', class_='courseblockdesc noindent') == None:
         course_description = ""
     else:
         course_description = course.find('p', class_='courseblockdesc noindent').text
+        course_description = " ".join(course_description.split())
+        
 
-    csv_writer.writerow([course_title.encode('utf-8', errors='ignore'), course_description.encode('utf-8', errors='ignore')])
+    csv_writer.writerow([course_title, course_description])
 csv_file.close()
-
-# Export to html
-html_file = open("parsed_UofO_Courses.html", "w")
-for course in soup.find_all('div', class_='courseblock'):
-    
-    course_title = course.find('p', class_='courseblocktitle noindent')
-    course_description = course.find('p', class_='courseblockdesc noindent')
-
-    html_file.write(str(course_title))
-    html_file.write(str(course_description))
-html_file.close()
-
-   
