@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>Beam Search</title>
+    <meta charset="utf-8" />
+</head>
+
+<body>
+    <center>
+        <!-- Header -->
+        <header id="header">
+            <h1>Beam Search </h1>
+        </header>
+
+        <!-- Search Form -->
+        <form method="POST" action="{{ url_for('handle_data') }}">
+            <input type="text" name="query" placeholder="Search.."><br>
+
+            <input type="radio" name="model" value="boolean"> Boolean<br>
+            <input type="radio" name="model" value="vsm"> VSM<br>
+
+            <input name='search-button' type='submit' value='search' /><br>
+        </form>
+    </center>
+</body>
+
+</html>
