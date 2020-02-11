@@ -1,7 +1,6 @@
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
-# from stack import Stack
-from pythonds.basic.stack import Stack
+from stack import Stack
 import csv
 import pandas as pd
 import re
@@ -11,12 +10,6 @@ PRECIDENT = {'(': 1, 'AND': 2, 'OR': 2, 'NOT': 2, 'AND_NOT': 2, }
 PUNCUATIONS = [',', '[', ']', '']
 INDEX_REGEX = r'(\[\d+, \d+\])'
 lemmatizer = WordNetLemmatizer()
-
-'''
-INPUT = ADM AND (CSI OR system)
-OUTPUT = ADM CSI system OR AND
-'''
-
 
 def infixToPostfix(query):
 	query_list = word_tokenize(query)
@@ -111,30 +104,37 @@ def getDocIds(word):
 				i+=1
 
 			index_file.close()
-
 			return(output)
 	return []
 
 
 def retrieve_documents(id_list):
-	print(id_list)
 	dictionary = open('dictionary.csv', 'r')
 	dic = csv.reader(dictionary)
 
 	output = []
 
 	df = pd.read_csv("dictionary.csv", header=0)
-	i=0
-	for i in range(0, len(id_list)):
+	i = 0
+	while i < len(id_list)-1:
+		if id_list[i] == []:
+			continue
 		output.append(df.iloc[[i]])
+		i+=1
 	return output
 
 def main(query):
-	postfixquery = infixToPostfix(query)
-	print("postfixquery::",postfixquery)
-	ids = processPostfix(postfixquery)
-	print("ids::",ids)
-	documents = retrieve_documents(ids)
-	print("*****************************************")
-	print("documents::",documents)
+	if len(q.split()) < 2:
+		ids = getDocIds(query)
+		print(ids)
+		documents = retrieve_documents(ids)
+		print(documents)
+	else:
+		postfixquery = infixToPostfix(query)
+		print("postfixquery::",postfixquery)
+		ids = processPostfix(postfixquery)
+		print("ids::",ids)
+		documents = retrieve_documents(ids)
+		print("*****************************************")
+		print("documents::",documents)
 
