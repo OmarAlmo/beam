@@ -115,17 +115,26 @@ def retrieve_documents(id_list):
 	output = []
 
 	df = pd.read_csv("dictionary.csv", header=0)
-	i=0
-	for i in id_list:
+	i = 0
+	while i < len(id_list)-1:
+		if id_list[i] == []:
+			continue
 		output.append(df.iloc[[i]])
-	print(output)
+		i+=1
 	return output
 
 def main(query):
-	postfixquery = infixToPostfix(query)
-	print("postfixquery::",postfixquery)
-	ids = processPostfix(postfixquery)
-	print("ids::",ids)
-	documents = retrieve_documents(ids)
-	print("*****************************************")
-	print("documents::",documents)
+	if len(q.split()) < 2:
+		ids = getDocIds(query)
+		print(ids)
+		documents = retrieve_documents(ids)
+		print(documents)
+	else:
+		postfixquery = infixToPostfix(query)
+		print("postfixquery::",postfixquery)
+		ids = processPostfix(postfixquery)
+		print("ids::",ids)
+		documents = retrieve_documents(ids)
+		print("*****************************************")
+		print("documents::",documents)
+
