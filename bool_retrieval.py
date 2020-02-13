@@ -36,7 +36,6 @@ def infixToPostfix(query):
 		postfix.append(stack.pop())
 	return ' '.join(postfix)
 
-
 def processPostfix(postfix):
 	postfix_list = word_tokenize(postfix)
 	stack = Stack()
@@ -59,7 +58,6 @@ def processPostfix(postfix):
 			output.append(elem)
 	return output
 
-
 def boolean_retrieval(a, b, op):
 	if type(a) != list:
 		listA = getDocIds(a)
@@ -81,8 +79,12 @@ def boolean_retrieval(a, b, op):
 
 	return res
 
+def get_docs_ids(word):
+	wildcard = False
+	
+	if '*' in word:
+		wildcard = True
 
-def getDocIds(word):
 	index_file = open('index.csv', 'r')
 	index = csv.reader(index_file)
 
@@ -90,9 +92,16 @@ def getDocIds(word):
 	word = lemmatizer.lemmatize(word.lower())
 	output = []
 
+	if wildcard:
+		regx = re.compile(wildcard_to_regex(word))
+		query = "re.match(regx, df.iloc[i]['Term'])"
+	else:
+		query = "(word == df.iloc[i]['Term'])"
+
 	for i in range(0, df.shape[0]):
-		if (word == df.iloc[i]['Term']):
+		if (eval(query)):
 			row = df.iat[i,1]
+			print(df.iat[i,0])
 
 			p = re.compile(INDEX_REGEX)
 			index_list = p.findall(row)
@@ -103,10 +112,17 @@ def getDocIds(word):
 				output.append(res[i][0])
 				i+=1
 
-			index_file.close()
-			return(output)
-	return []
+	index_file.close()
+	return(output)
 
+def wildcard_to_regex(wildcard_word):
+	w = list(wildcard_word)
+	out = ""
+	for c in w:
+		if c == '*':
+			c = '(.'+c+')'
+		out += c
+	return out
 
 def retrieve_documents(id_list):
 	dictionary = open('dictionary.csv', 'r')
@@ -123,9 +139,10 @@ def retrieve_documents(id_list):
 		i+=1
 	return output
 
+
 def main(query):
 	if len(q.split()) < 2:
-		ids = getDocIds(query)
+		ids = get_docs_ids(query)
 		print(ids)
 		documents = retrieve_documents(ids)
 		print(documents)
@@ -137,4 +154,3 @@ def main(query):
 		documents = retrieve_documents(ids)
 		print("*****************************************")
 		print("documents::",documents)
-

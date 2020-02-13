@@ -73,6 +73,7 @@ def build_index():
 				INVERTED_INDEX[word].append([i,1])
 		i+=1
 	csvDataFile.close()
+
 def build_indeverted_csv():
 	inverted_csv_file = open('./corpus/inverted_UofO_Courses.csv', 'w')
 	csv_writer = csv.writer(inverted_csv_file)
@@ -80,4 +81,6 @@ def build_indeverted_csv():
 	for key in INVERTED_INDEX:
 		csv_writer.writerow([key, INVERTED_INDEX[key]])
 	inverted_csv_file.close()
-	
+
+build_index()
+build_indeverted_csv()

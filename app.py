@@ -11,7 +11,8 @@ def index():
 def handle_data():
     query = request.form['query']
     model = request.form['model']
-    
+    print(query)
+    print(model)
     return render_template('index.html')
 		
 
