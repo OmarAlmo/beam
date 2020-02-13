@@ -4,6 +4,8 @@ from stack import Stack
 import csv
 import pandas as pd
 import re
+import numpy
+
 
 OPERATORS = ['AND', 'OR', 'AND_NOT', '(', ')']
 PRECIDENT = {'(': 1, 'AND': 2, 'OR': 2, 'NOT': 2, 'AND_NOT': 2, }
@@ -60,13 +62,11 @@ def processPostfix(postfix):
 
 def boolean_retrieval(a, b, op):
 	if type(a) != list:
-		listA = getDocIds(a)
-		# print("LIST A: ", listA)
+		listA = get_docs_ids(a)
 	else:
 		listA = a
 	if type(b) != list:
-		listB = getDocIds(b)
-		# print("LIST B: ", listB)
+		listB = get_docs_ids(b)
 	else:
 		listB = b
 
@@ -85,7 +85,7 @@ def get_docs_ids(word):
 	if '*' in word:
 		wildcard = True
 
-	index_file = open('index.csv', 'r')
+	index_file = open('inverted_index.csv', 'r')
 	index = csv.reader(index_file)
 
 	df = pd.read_csv("index.csv", header=0)
@@ -100,17 +100,18 @@ def get_docs_ids(word):
 
 	for i in range(0, df.shape[0]):
 		if (eval(query)):
-			row = df.iat[i,1]
-			print(df.iat[i,0])
+			row = df.iat[i,0]
+
+			print(df.iat[i,0], "\n", df.iat[i,1], "\n\n")
 
 			p = re.compile(INDEX_REGEX)
 			index_list = p.findall(row)
 			res = [i[1 : -1].split(', ') for i in index_list] 
 
-			i = 0
-			for i in range(len(res)):
-				output.append(res[i][0])
-				i+=1
+			j = 0
+			for j in range(len(res)):
+				output.append(res[j][0])
+				j+=1
 
 	index_file.close()
 	return(output)
@@ -124,33 +125,30 @@ def wildcard_to_regex(wildcard_word):
 		out += c
 	return out
 
+print(get_docs_ids('op*'))
+
 def retrieve_documents(id_list):
 	dictionary = open('dictionary.csv', 'r')
 	dic = csv.reader(dictionary)
 
 	output = []
 
-	df = pd.read_csv("dictionary.csv", header=0)
-	i = 0
-	while i < len(id_list)-1:
-		if id_list[i] == []:
+	i = 1
+	for row in dic:
+		if row == []:
 			continue
-		output.append(df.iloc[[i]])
+		if str(i) in id_list:
+			output.append(row)
 		i+=1
 	return output
 
 
 def main(query):
-	if len(q.split()) < 2:
+	if len(query.split()) < 2:
 		ids = get_docs_ids(query)
-		print(ids)
 		documents = retrieve_documents(ids)
-		print(documents)
 	else:
 		postfixquery = infixToPostfix(query)
-		print("postfixquery::",postfixquery)
 		ids = processPostfix(postfixquery)
-		print("ids::",ids)
 		documents = retrieve_documents(ids)
-		print("*****************************************")
-		print("documents::",documents)
+	return documents

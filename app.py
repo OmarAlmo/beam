@@ -1,4 +1,6 @@
 from flask import Flask,render_template, request
+import bool_retrieval
+
 
 app = Flask(__name__)
 
@@ -11,12 +13,16 @@ def index():
 def handle_data():
     query = request.form['query']
     model = request.form['model']
-    print(query)
-    print(model)
-    return render_template('index.html')
+    if model == 'boolean':
+        return render_template('index.html',res=bool_retrieval.main(query))
+    # else: 
+    #     # vectormodel
 		
 
 if __name__ =="__main__":
     app.run(debug=True,port=8080)
+
+
+
 
 			
