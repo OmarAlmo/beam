@@ -4,6 +4,14 @@
 <head>
     <title>Beam Search</title>
     <meta charset="utf-8" />
+
+    <style>
+        body {
+            width: 50%;
+            margin: auto;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -15,14 +23,26 @@
 
         <!-- Search Form -->
         <form method="POST" action="{{ url_for('handle_data') }}">
-            <input type="text" name="query" placeholder="Search.."><br>
+            <input type="text" name="query" size="55" placeholder="Search.."><br>
 
-            <input type="radio" name="model" value="boolean"> Boolean<br>
+            <input type="radio" name="model" value="boolean" checked="checked"> Boolean<br>
             <input type="radio" name="model" value="vsm"> VSM<br>
 
             <input name='search-button' type='submit' value='search' /><br>
         </form>
     </center>
+
+    {% if query %}
+    <h5>Query: {{query}} </h5>
+    {% endif %}
+
+    <br>
+    {% for i in res %}
+    <h3>{{i[0]}} </h3>
+    <p>{{i[1]}}</p>
+    </br>
+    {% endfor %}
+    </div>
 </body>
 
 </html>

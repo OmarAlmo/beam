@@ -16,7 +16,7 @@ lemmatizer = WordNetLemmatizer()
 NUMBER_OF_ROWS = df.shape[0]
 
 CUSTOM_STOP_WORDS = ['course', 'knowledge', 'business', 'effectively','student','constitutes','introduce','major','minor', '(', ')', ',', '"','.', ';']
-NLTK_WORDS = stopwords.words('english')
+NLTK_WORDS = stopwords.words('english') + stopwords.words('french')
 STOP_WORDS = CUSTOM_STOP_WORDS + NLTK_WORDS
 
 DICTIONARY = {}
@@ -43,10 +43,10 @@ def build_dictionary():
 
 
 def build_index():
-	csvDataFile = open('./corpus/parsed_UofO_Courses.csv')
+	csvDataFile = open('dictionary.csv')
 	csvReader = csv.reader(csvDataFile)
 
-	i = 0
+	i = 1
 
 	for row in csvReader:
 		title = row[0]
@@ -58,11 +58,12 @@ def build_index():
 
 		for word in tokenized_words:
 			# Lemmatize & fold case words
+			word = word.lower()			
 			word = lemmatizer.lemmatize(word)
-			word = word.lower()
-			
+
 			if word in STOP_WORDS:
 				continue
+			
 			flag=True
 
 			for kw in INVERTED_INDEX[word] :
@@ -73,11 +74,15 @@ def build_index():
 				INVERTED_INDEX[word].append([i,1])
 		i+=1
 	csvDataFile.close()
+
 def build_indeverted_csv():
-	inverted_csv_file = open('./corpus/inverted_UofO_Courses.csv', 'w')
+	inverted_csv_file = open('inverted_index.csv', 'w')
 	csv_writer = csv.writer(inverted_csv_file)
 	csv_writer.writerow(['Term', 'DocID&Sequence'])
 	for key in INVERTED_INDEX:
 		csv_writer.writerow([key, INVERTED_INDEX[key]])
 	inverted_csv_file.close()
 	
+build_index()
+build_indeverted_csv()
+
