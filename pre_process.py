@@ -12,10 +12,18 @@ import collections
 CUSTOM_STOP_WORDS = ['course', 'knowledge', 'business', 'effectively','student','constitutes','introduce','major','minor', '(', ')', ',', '"','.', ';']
 NLTK_WORDS = stopwords.words('english') + stopwords.words('french')
 STOP_WORDS = CUSTOM_STOP_WORDS + NLTK_WORDS
+DICTIONARY = {}
 INVERTED_INDEX = collections.defaultdict(list)
 
+lemmatizer = WordNetLemmatizer()
 
-def build_dictionary():
+
+class Node:
+    def __init__(self, courseTitle=None, courseDesc=None):
+        self.courseTitle = courseTitle
+        self.courseDesc = courseDesc
+
+def build_dictionary_csv():
     with open ('./corpus/UofO_Courses.html') as html_file:
         soup = BeautifulSoup(html_file, 'html5lib')
 
@@ -42,12 +50,27 @@ def build_dictionary():
             if ("è" in course_description) or ("é" in course_description):
 	            continue
             
-
         csv_writer.writerow([course_title, course_description])
     csv_file.close()
 
 
-def build_index():
+def build_dictionary():
+	csvDataFile = open('./corpus/parsed_UofO_Courses.csv')
+	csvReader = csv.reader(csvDataFile)
+
+	i = 0
+	for row in csvReader:
+		title = row[0]
+		description = row[1]
+		newNode = Node(title, description)
+		DICTIONARY[i] = newNode
+		i+=1
+
+	csvDataFile.close()
+	return DICTIONARY
+
+
+def build_inverted_index():
 	csvDataFile = open('dictionary.csv')
 	csvReader = csv.reader(csvDataFile)
 
@@ -78,12 +101,14 @@ def build_index():
 			if flag:
 				INVERTED_INDEX[word].append([i,1])
 		i+=1
-	csvDataFile.close()
 
-def export_indeverted_csv():
+	csvDataFile.close()
+	return INVERTED_INDEX
+
+def export_indeverted_csv(self, INVERTED_INDEX):
 	inverted_csv_file = open('inverted_index.csv', 'w')
 	csv_writer = csv.writer(inverted_csv_file)
 	csv_writer.writerow(['Term', 'DocID&Sequence'])
-	for key in INVERTED_INDEX:
-		csv_writer.writerow([key, INVERTED_INDEX[key]])
+	for key in self.INVERTED_INDEX:
+		csv_writer.writerow([key, self.INVERTED_INDEX[key]])
 	inverted_csv_file.close()

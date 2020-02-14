@@ -13,7 +13,7 @@ PUNCUATIONS = [',', '[', ']', '']
 INDEX_REGEX = r'(\[\d+, \d+\])'
 lemmatizer = WordNetLemmatizer()
 
-def infixToPostfix(query):
+def infix_to_postfix(query):
 	query_list = word_tokenize(query)
 
 	stack = Stack()
@@ -38,7 +38,7 @@ def infixToPostfix(query):
 		postfix.append(stack.pop())
 	return ' '.join(postfix)
 
-def processPostfix(postfix):
+def process_postf(postfix):
 	postfix_list = word_tokenize(postfix)
 	stack = Stack()
 	tmp = []
@@ -147,9 +147,7 @@ def main(query):
 		ids = get_docs_ids(query)
 		documents = retrieve_documents(ids)
 	else:
-		postfixquery = infixToPostfix(query)
-		ids = processPostfix(postfixquery)
+		postfixquery = infix_to_postfix(query)
+		ids = process_postfix(postfixquery)
 		documents = retrieve_documents(ids)
 	return documents
-
-print(get_docs_ids('a.i'))
