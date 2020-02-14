@@ -13,8 +13,9 @@ def index():
 def handle_data():
     query = request.form['query']
     model = request.form['model']
+    
     if model == 'boolean':
-        return render_template('index.html',res=bool_retrieval.main(query))
+        return render_template('index.html',res=bool_retrieval.main(query), query=query)
     # else: 
     #     # vectormodel
 		

@@ -65,6 +65,7 @@ def boolean_retrieval(a, b, op):
 		listA = get_docs_ids(a)
 	else:
 		listA = a
+
 	if type(b) != list:
 		listB = get_docs_ids(b)
 	else:
@@ -81,15 +82,16 @@ def boolean_retrieval(a, b, op):
 
 def get_docs_ids(word):
 	wildcard = False
-	
+
 	if '*' in word:
 		wildcard = True
 
 	index_file = open('inverted_index.csv', 'r')
 	index = csv.reader(index_file)
 
-	df = pd.read_csv("index.csv", header=0)
+	df = pd.read_csv("inverted_index.csv", header=0)
 	word = lemmatizer.lemmatize(word.lower())
+
 	output = []
 
 	if wildcard:
@@ -97,19 +99,18 @@ def get_docs_ids(word):
 		query = "re.match(regx, df.iloc[i]['Term'])"
 	else:
 		query = "(word == df.iloc[i]['Term'])"
-
+	
 	for i in range(0, df.shape[0]):
 		if (eval(query)):
-			row = df.iat[i,0]
-
-			print(df.iat[i,0], "\n", df.iat[i,1], "\n\n")
-
+			row = df.iat[i,1]
 			p = re.compile(INDEX_REGEX)
 			index_list = p.findall(row)
-			res = [i[1 : -1].split(', ') for i in index_list] 
 
+			res = [i[1 : -1].split(', ') for i in index_list] 
+			
 			j = 0
 			for j in range(len(res)):
+				# print(res[j][0])
 				output.append(res[j][0])
 				j+=1
 
@@ -124,8 +125,6 @@ def wildcard_to_regex(wildcard_word):
 			c = '(.'+c+')'
 		out += c
 	return out
-
-print(get_docs_ids('op*'))
 
 def retrieve_documents(id_list):
 	dictionary = open('dictionary.csv', 'r')
@@ -152,3 +151,5 @@ def main(query):
 		ids = processPostfix(postfixquery)
 		documents = retrieve_documents(ids)
 	return documents
+
+print(get_docs_ids('a.i'))
