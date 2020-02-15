@@ -38,7 +38,7 @@ def infix_to_postfix(query):
 		postfix.append(stack.pop())
 	return ' '.join(postfix)
 
-def process_postf(postfix):
+def process_postfix(postfix):
 	postfix_list = word_tokenize(postfix)
 	stack = Stack()
 	tmp = []
