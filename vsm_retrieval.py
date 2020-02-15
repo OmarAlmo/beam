@@ -15,7 +15,7 @@ CUSTOM_STOP_WORDS = ['course', 'knowledge', 'business', 'effectively','student',
 NLTK_WORDS = stopwords.words('english')
 STOP_WORDS = CUSTOM_STOP_WORDS + NLTK_WORDS
 
-'''create the keyword associated to the position of the elements within the document vectors '''
+# take a query string and generate it into a tokenized lemmatized query list'''
 def generate_query(query):
         queryList=[]
 
@@ -34,7 +34,7 @@ def generate_query(query):
                 queryList.append(word)
         return queryList
 
-# initialize vector matrix with term frequence as default value
+# building vector matrix with tf-idf value
 def make_Vectormatrix(queryList):
         #Initialise vector with 0's
         totalNum_document = len(dictionary)
@@ -60,6 +60,7 @@ def make_Vectormatrix(queryList):
                 for i in range(0,len(vector_dictionary[term])):
                         vector_dictionary[term][i]=vector_dictionary[term][i]*idf
         return vector_dictionary
+# calculate the score and build a sorted score table in format of [docID:score]
 def make_scoreTable(vector_dictionary):
         scoreTable=collections.defaultdict(list)
         #docID=0
@@ -80,12 +81,13 @@ def make_scoreTable(vector_dictionary):
                 scoreTable.pop(x)
         return sorted(scoreTable.items(), key=lambda x: x[1],reverse=True) 
 
+# extract the docID from score table
 def make_idList(scoreTable):
         idList=[]
         for x in scoreTable:
                 idList.append(x[0])
         return idList
-
+# retrive document base on the input id_list
 def retrieve_documents(id_list):
         csvdictionary = open('dictionary.csv', 'r')
         dic = csv.reader(csvdictionary)
