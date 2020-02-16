@@ -10,31 +10,13 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import math
 import difflib
+import Levenshtein
 lemmatizer = WordNetLemmatizer()
 
 CUSTOM_STOP_WORDS = ['course', 'knowledge', 'business', 'effectively','student','constitutes','introduce','major','minor', '(', ')', ',', '"','.', ';']
 NLTK_WORDS = stopwords.words('english')
 STOP_WORDS = CUSTOM_STOP_WORDS + NLTK_WORDS
 
-def word_check(word):
-	index_file = open('inverted_index.csv', 'r')
-	index = csv.reader(index_file)
-	
-	document_words = []
-	for i in index:
-		document_words.append(i[0])
-	
-	# returns closes match if word not in index
-	if word not in document_words:
-		matches = difflib.get_close_matches(word, document_words)
-		return matches[0]
-	
-	index_file.close()
-	return word
-
-	
-
-word_check('sofware')
 # take a query string and generate it into a tokenized lemmatized query list'''
 def generate_query(query):
 	queryList=[]
@@ -53,6 +35,27 @@ def generate_query(query):
 				continue
 		queryList.append(word_check(word))
 	return queryList
+
+def word_check(word):
+	index_file = open('inverted_index.csv', 'r')
+	index = csv.reader(index_file)
+	
+	document_words = []
+	for i in index:
+		document_words.append(i[0])
+	
+	# returns closes match if word not in index
+	if word not in document_words:
+		matches = difflib.get_close_matches(word, document_words)
+
+	min_distance = Levenshtein.distance(word, matches[0])
+
+	for m in matches:
+		if Levenshtein.distance(word, m) <= min_distance:
+			word = m
+			min_distance = Levenshtein.distance(word, m)	
+	index_file.close()
+	return word
 
 # building vector matrix with tf-idf value
 def make_Vectormatrix(queryList):
