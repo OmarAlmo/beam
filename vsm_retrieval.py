@@ -47,7 +47,9 @@ def word_check(word):
 	# returns closes match if word not in index
 	if word not in document_words:
 		matches = difflib.get_close_matches(word, document_words)
-
+	else: 
+		return word
+	
 	min_distance = Levenshtein.distance(word, matches[0])
 
 	for m in matches:
