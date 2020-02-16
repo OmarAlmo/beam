@@ -11,3 +11,4 @@ Required libraries
 - pandas
 - NLTK
 - flask
+- BeautifulSoup
