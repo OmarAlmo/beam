@@ -57,6 +57,8 @@ def word_check(word):
 			word = m
 			min_distance = Levenshtein.distance(word, m)	
 	index_file.close()
+
+	print("****** \n WORD CORRECTION: ", word, "\n******")
 	return word
 
 # building vector matrix with tf-idf value
