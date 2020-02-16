@@ -7,6 +7,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import collections
+import time
 
 
 CUSTOM_STOP_WORDS = ['course', 'knowledge', 'business', 'effectively','student','constitutes','introduce','major','minor', '(', ')', ',', '"','.', ';']
@@ -50,12 +51,12 @@ def build_dictionary_csv():
             if ("è" in course_description) or ("é" in course_description):
 	            continue
             
-        csv_writer.writerow([course_title, course_description])
-    csv_file.close()
+        dictionary.writerow([course_title, course_description])
+    dictionary_file.close()
 
 
 def build_dictionary():
-	csvDataFile = open('./corpus/parsed_UofO_Courses.csv')
+	csvDataFile = open('dictionary.csv')
 	csvReader = csv.reader(csvDataFile)
 
 	i = 0
@@ -105,10 +106,19 @@ def build_inverted_index():
 	csvDataFile.close()
 	return INVERTED_INDEX
 
-def export_indeverted_csv(self, INVERTED_INDEX):
+def export_indeverted_csv(inverted_index):
 	inverted_csv_file = open('inverted_index.csv', 'w')
 	csv_writer = csv.writer(inverted_csv_file)
 	csv_writer.writerow(['Term', 'DocID&Sequence'])
-	for key in self.INVERTED_INDEX:
-		csv_writer.writerow([key, self.INVERTED_INDEX[key]])
+	for key in inverted_index:
+		csv_writer.writerow([key, inverted_index[key]])
 	inverted_csv_file.close()
+
+
+def main():
+	build_dictionary_csv()
+	build_dictionary()
+	inverted_index = build_inverted_index()
+	export_indeverted_csv(inverted_index)
+
+main()
