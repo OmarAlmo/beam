@@ -49,17 +49,14 @@ def make_Vectormatrix(queryList):
 
         #make the dictionary to be tf-idf
         for term in vector_dictionary:
-                print("(totalNum_document+1) ",(totalNum_document+1))
-                print("inverted_dictionary[term] ",inverted_dictionary[term])
-                print("len(inverted_dictionary[term]) ",len(inverted_dictionary[term]))
                 if(len(inverted_dictionary[term])==0):
                         idf=0
                 else:
                         idf=math.log((totalNum_document+1)/len(inverted_dictionary[term]))
-                        print("idf for term ",term," is ",idf)
                 for i in range(0,len(vector_dictionary[term])):
                         vector_dictionary[term][i]=vector_dictionary[term][i]*idf
         return vector_dictionary
+
 # calculate the score and build a sorted score table in format of [docID:score]
 def make_scoreTable(vector_dictionary):
         scoreTable=collections.defaultdict(list)
@@ -67,9 +64,6 @@ def make_scoreTable(vector_dictionary):
         for i in range(0,len(dictionary)):
                 score=0
                 for x in vector_dictionary:
-                        #print("vector dic is ",vector_dictionary)
-                        #print('x is '+x)
-                        #print("i-1 is ",vector_dictionary[x][i-1])
                         score+=vector_dictionary[x][i-1]
                 scoreTable[i]=score
         #remove the document with score 0

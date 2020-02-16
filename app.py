@@ -1,4 +1,5 @@
 from flask import Flask,render_template, request
+import pre_process
 import bool_retrieval
 import vsm_retrieval
 
@@ -22,6 +23,9 @@ def handle_data():
 		
 
 if __name__ =="__main__":
+    print("Building dictionary and index...")
+    pre_process.main()
+    print("App initiated.")
     app.run(debug=True,port=8080)
 
 
