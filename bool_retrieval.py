@@ -4,7 +4,6 @@ from stack import Stack
 import csv
 import pandas as pd
 import re
-import numpy
 
 
 OPERATORS = ['AND', 'OR', 'AND_NOT', '(', ')']
