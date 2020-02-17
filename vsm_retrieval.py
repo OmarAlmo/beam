@@ -63,6 +63,7 @@ def word_check(word):
 
 # building vector matrix with tf-idf value
 def make_Vectormatrix(queryList):
+	vector_dictionary=collections.defaultdict(list)
 	#Initialise vector with 0's
 	totalNum_document = len(dictionary)
 	for query_element in queryList:
