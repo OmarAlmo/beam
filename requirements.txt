@@ -2,4 +2,4 @@ nltk
 pandas
 python-Levenshtein 
 flask
-BeautifulSoup
+beautifulsoup4
