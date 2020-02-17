@@ -28,7 +28,7 @@ def build_dictionary_csv():
     with open ('./corpus/UofO_Courses.html') as html_file:
         soup = BeautifulSoup(html_file, 'html5lib')
 
-    dictionary_file = open('dictionary.csv', 'w')
+    dictionary_file = open('dictionary.csv', 'w',newline='')
     dictionary = csv.writer(dictionary_file)
     dictionary.writerow(['Course Title', 'Course Description'])
 
@@ -111,7 +111,7 @@ def build_inverted_index():
 	return INVERTED_INDEX
 
 def export_indeverted_csv(inverted_index):
-	inverted_csv_file = open('inverted_index.csv', 'w')
+	inverted_csv_file = open('inverted_index.csv', 'w',newline='')
 	csv_writer = csv.writer(inverted_csv_file)
 	csv_writer.writerow(['Term', 'DocID&Sequence'])
 	for key in inverted_index:
