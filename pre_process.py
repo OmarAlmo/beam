@@ -61,6 +61,8 @@ def build_dictionary():
 
 	i = 0
 	for row in csvReader:
+		if row==[]:
+			continue
 		title = row[0]
 		description = row[1]
 		newNode = Node(title, description)
