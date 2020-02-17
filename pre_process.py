@@ -80,8 +80,6 @@ def build_inverted_index():
 	i = 1
 
 	for row in csvReader:
-		if row==[]:
-			continue
 		title = row[0]
 		description = row[1]
 		row_words = title + description
