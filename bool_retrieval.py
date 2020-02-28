@@ -38,9 +38,12 @@ def infix_to_postfix(query):
 	return ' '.join(postfix)
 
 def process_postfix(postfix):
+	'''
+	input: postfix query
+	output: list of docIDs of query
+	'''
 	postfix_list = word_tokenize(postfix)
 	stack = Stack()
-	tmp = []
 	for word in postfix_list:
 		if word not in OPERATORS:
 			stack.push(word)
@@ -49,14 +52,9 @@ def process_postfix(postfix):
 			b = stack.pop()
 			op = word
 			res = boolean_retrieval(a, b, op)
-			tmp.append(res)
+			output = res
 			stack.push(res)
 
-	output = []
-	for i in tmp[0]:
-		elem = str(i).strip()
-		if elem not in PUNCUATIONS:
-			output.append(elem)
 	return output
 
 def boolean_retrieval(a, b, op):
@@ -73,10 +71,10 @@ def boolean_retrieval(a, b, op):
 	if op == 'AND':
 		res = list(set(listA).intersection(listB))
 	elif op == 'OR':
-		res = list(set(listA) | set(listB))
+		res = list(set(listA).union(set(listB)))
 	else:  # op == 'AND_NOT':
-		res = list(set(listA) not in set(listB))
-
+		res = list(set(listA) - set(listB))
+	
 	return res
 
 def get_docs_ids(word):
@@ -109,7 +107,6 @@ def get_docs_ids(word):
 			
 			j = 0
 			for j in range(len(res)):
-				# print(res[j][0])
 				output.append(res[j][0])
 				j+=1
 
