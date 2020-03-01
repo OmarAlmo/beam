@@ -4,6 +4,7 @@ from stack import Stack
 import csv
 import pandas as pd
 import re
+from corpus_access import retrieve_documents
 
 
 OPERATORS = ['AND', 'OR', 'AND_NOT', '(', ')']
@@ -122,21 +123,6 @@ def wildcard_to_regex(wildcard_word):
 		out += c
 	return out
 
-def retrieve_documents(id_list):
-	dictionary = open('dictionary.csv', 'r')
-	dic = csv.reader(dictionary)
-
-	output = []
-
-	i = 1
-	for row in dic:
-		if row == []:
-			continue
-		if str(i) in id_list:
-			output.append(row)
-		i+=1
-	return output
-
 
 def main(query):
 	if len(query.split()) < 2:
@@ -146,4 +132,7 @@ def main(query):
 		postfixquery = infix_to_postfix(query)
 		ids = process_postfix(postfixquery)
 		documents = retrieve_documents(ids)
+		print(documents)
+		if documents == []:
+			return [["No documents with that query."]]
 	return documents
