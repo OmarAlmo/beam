@@ -1,7 +1,7 @@
 from flask import Flask,render_template, request
-import pre_process
 import bool_retrieval
 import vsm_retrieval
+from  utilities import retrieve_documents
 
 
 app = Flask(__name__)
@@ -15,16 +15,35 @@ def index():
 def handle_data():
     query = request.form['query']
     model = request.form['model']
+
     
-    if model == 'boolean':
-        return render_template('index.html',res=bool_retrieval.main(query), query=query)
+    try:
+        bool_retrieval.LEMMATIZE = request.form.getlist("lemmatization")[0]
+    except:
+        pass
+    
+    try:
+        bool_retrieval.NORMALIZE = request.form.getlist("normalization")[0]
+    except:
+        pass
+
+    if model == 'corpus_acess':
+        query_list = query.split(',')
+        return render_template('index.html',res=retrieve_documents(query_list), query=query)
+    
+    elif model == 'boolean':
+        res=bool_retrieval.main(query)
+
+        # Reset settings for next query
+        bool_retrieval.LEMMATIZE = True
+        bool_retrieval.NORMALIZE = True
+        return render_template('index.html',res=res, query=query)
+    
     else: 
         return render_template('index.html',res=vsm_retrieval.main(query), query=query)
-		
+
 
 if __name__ =="__main__":
-    print("Building dictionary and index...")
-    pre_process.main()
     print("App initiated.")
     app.run(port=8080)
 

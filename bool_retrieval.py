@@ -1,17 +1,19 @@
+import csv
+import pandas as pd
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from stack import Stack
-import csv
-import pandas as pd
 import re
-from corpus_access import retrieve_documents
-
+import utilities
 
 OPERATORS = ['AND', 'OR', 'AND_NOT', '(', ')']
 PRECIDENT = {'(': 1, 'AND': 2, 'OR': 2, 'NOT': 2, 'AND_NOT': 2, }
 PUNCUATIONS = [',', '[', ']', '']
 INDEX_REGEX = r'(\[\d+, \d+\])'
 lemmatizer = WordNetLemmatizer()
+
+LEMMATIZE = True
+NORMALIZE = True
 
 def infix_to_postfix(query):
 	query_list = word_tokenize(query)
@@ -45,6 +47,7 @@ def process_postfix(postfix):
 	'''
 	postfix_list = word_tokenize(postfix)
 	stack = Stack()
+	output = []
 	for word in postfix_list:
 		if word not in OPERATORS:
 			stack.push(word)
@@ -88,7 +91,11 @@ def get_docs_ids(word):
 	index = csv.reader(index_file)
 
 	df = pd.read_csv("inverted_index.csv", header=0)
-	word = lemmatizer.lemmatize(word.lower())
+
+	if eval(LEMMATIZE):
+		word = lemmatizer.lemmatize(word)
+	if eval(NORMALIZE):
+		pass
 
 	output = []
 
@@ -127,12 +134,11 @@ def wildcard_to_regex(wildcard_word):
 def main(query):
 	if len(query.split()) < 2:
 		ids = get_docs_ids(query)
-		documents = retrieve_documents(ids)
+		documents = utilities.retrieve_documents(ids)
 	else:
 		postfixquery = infix_to_postfix(query)
 		ids = process_postfix(postfixquery)
-		documents = retrieve_documents(ids)
-		print(documents)
+		documents = utilities.retrieve_documents(ids)
 		if documents == []:
 			return [["No documents with that query."]]
 	return documents
