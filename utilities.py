@@ -1,13 +1,10 @@
 import csv
 import pandas as pd
 import re
+import math
 
-INDEX_REGEX = r'(\[\d+, \d+\])'
-INDX_P = re.compile(INDEX_REGEX)
-
-
-NUMBER_DOCUMENTS = pd.read_csv("dictionary.csv", header=0).shape[0]
-
+INDEX_REGEX = r'\[\d+, [+-]?[0-9]*[.]?[0-9]+\]'
+NUMBER_DOCUMENTS = pd.read_csv("dictionary.csv").shape[0] - 1
 
 def retrieve_documents(id_list):
 	dictionary = open('dictionary.csv', 'r')
@@ -21,15 +18,12 @@ def retrieve_documents(id_list):
 	df = df.set_index('DocID')
 
 	for i in id_list:
-		tmp =[df.iat[i,0], df.iat[i, 1]]
+		tmp =[df.iat[int(i),0], df.iat[int(i), 1]]
 		output.append(tmp)
-
 	return output
 
-retrieve_documents([1,2,5,10])
-
 def get_document(id):
-	df = pd.read_csv('dictionary.csv')
+	df = pd.read_csv('ictionary.csv')
 	df = df.set_index('DocID')
 
 	title = df.iat[id, 0]
@@ -42,17 +36,38 @@ def get_document(id):
 
 	return title + desc
 
-def get_term_row(word):
-	df = pd.read_csv("inverted_index.csv", header=0)
-
-	for i in range(0, df.shape[0]):
-		if word == df.iloc[i]['Term']:
-			row = df.iat[i,1]
+def get_term_docIDSeq(term):
+	df = pd.read_csv("tfidf_index.csv", header=0)
+	for i in range(0, df.shape[0]-1):
+		if term == df.iloc[i]['Term']:
+			row = df.iat[i,2]
 			p = re.compile(INDEX_REGEX)
 			index_list = p.findall(row)
-
 			return [i[1 : -1].split(', ') for i in index_list]
 
 def convert_to_list(line):
 	p = re.compile(INDEX_REGEX)
 	return [i[1 : -1].split(', ') for i in p.findall(line)]
+
+def get_tf(term, docID):
+	doc = get_document(docID)
+	row = get_term_docIDSeq(term)
+	try:
+		for i in row:
+			if (int(i[0]) == docID):
+				return float(i[1])/float(len(doc))	
+	except:
+		return 0
+
+def get_df(term):
+	return len(get_term_docIDSeq(term))
+
+def get_idf(term):
+    return math.log10(NUMBER_DOCUMENTS/(get_df(term)+1))
+
+def calculate_tfidf(term, docID):
+	return get_tf(term, docID) * get_idf(term)
+
+def get_tfidf(term, doc):
+	df = pd.read_csv('inverted_index.csv')
+	return df.loc[df['Term'] == term]['tfidf'].values

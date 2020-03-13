@@ -1,5 +1,5 @@
 from flask import Flask,render_template, request
-import bool_retrieval
+import boolean
 import vsm_retrieval
 from  utilities import retrieve_documents
 
