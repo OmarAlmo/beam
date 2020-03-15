@@ -1,7 +1,8 @@
 from flask import Flask,render_template, request
-import boolean
-import vsm_retrieval
-from  utilities import retrieve_documents
+
+import models.boolean
+import models.vsm_retrieval
+from  middleware.utils import retrieve_documents
 
 
 app = Flask(__name__)
@@ -46,6 +47,7 @@ def handle_data():
 if __name__ =="__main__":
     print("App initiated.")
     app.run(port=8080)
+
 
 
 
