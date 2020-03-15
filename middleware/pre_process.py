@@ -38,7 +38,7 @@ def build_dictionary_csv():
     with open ('./UofO_Courses.html') as html_file:
         soup = BeautifulSoup(html_file, 'html5lib')
     
-    dictionary_file = open('dictionary.csv', 'w',newline='')
+    dictionary_file = open('./../dictionary.csv', 'w',newline='')
     dictionary = csv.writer(dictionary_file)
     dictionary.writerow(['DocID', 'Course Title', 'Course Description'])
 
@@ -68,7 +68,7 @@ def build_dictionary_csv():
     dictionary_file.close()
 
 def build_dictionary():
-	csvDataFile = open('dictionary.csv')
+	csvDataFile = open('./../dictionary.csv')
 	csvReader = csv.reader(csvDataFile)
 
 	i = 0
@@ -86,7 +86,7 @@ def build_dictionary():
 
 
 def build_inverted_index():
-	csvDataFile = open('dictionary.csv')
+	csvDataFile = open('./../dictionary.csv')
 	csvReader = csv.reader(csvDataFile)
 
 	for row in csvReader:
@@ -125,7 +125,7 @@ def build_inverted_index():
 
 
 def export_indeverted_csv(inverted_index):
-	inverted_csv_file = open('inverted_index.csv', 'w',newline='')
+	inverted_csv_file = open('./../inverted_index.csv', 'w',newline='')
 	csv_writer = csv.writer(inverted_csv_file)
 	csv_writer.writerow(['Term', 'DocID&Sequence'])
 	for key in inverted_index:
@@ -133,11 +133,11 @@ def export_indeverted_csv(inverted_index):
 	inverted_csv_file.close()
 
 def add_tfidf():
-	tfidf_file = open('tfidf_index.csv', 'w')
+	tfidf_file = open('./../tfidf_index.csv', 'w')
 	csv_writer = csv.writer(tfidf_file)
 	csv_writer.writerow(['ID','Term', 'DocID/TF-IDF'])
 
-	df = pd.read_csv("inverted_index.csv", skiprows=0)
+	df = pd.read_csv("./../inverted_index.csv", skiprows=0)
 	counter = 0
 
 	for i in range(0, df.shape[0]-1):
