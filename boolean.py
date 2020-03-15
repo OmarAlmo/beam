@@ -2,7 +2,7 @@ import csv
 import pandas as pd
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
-from stack import Stack
+from pythonds.basic.stack import Stack
 import re
 import utilities
 
@@ -87,10 +87,10 @@ def get_docs_ids(word):
 	if '*' in word:
 		wildcard = True
 
-	index_file = open('inverted_index.csv', 'r')
+	index_file = open('./../inverted_index.csv', 'r')
 	index = csv.reader(index_file)
 
-	df = pd.read_csv("inverted_index.csv", header=0)
+	df = pd.read_csv("./../inverted_index.csv", header=0)
 
 	if eval(LEMMATIZE):
 		word = lemmatizer.lemmatize(word)

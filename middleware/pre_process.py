@@ -8,9 +8,16 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import collections
 import time
-import utilities
 import math
 import re
+
+if __name__ == "__main__" and __package__ is None:
+    from sys import path
+    from os.path import dirname as dir
+
+    path.append(dir(path[0]))
+    __package__ = "middleware"
+import middleware.utils as utils
 
 
 CUSTOM_STOP_WORDS = ['course', 'knowledge', 'business', 'effectively','student','constitutes','introduce','major','minor', '(', ')', ',', '"','.', ';']
@@ -28,7 +35,7 @@ class Node:
         self.courseDesc = courseDesc
 
 def build_dictionary_csv():
-    with open ('./corpus/UofO_Courses.html') as html_file:
+    with open ('./UofO_Courses.html') as html_file:
         soup = BeautifulSoup(html_file, 'html5lib')
     
     dictionary_file = open('dictionary.csv', 'w',newline='')
@@ -125,45 +132,29 @@ def export_indeverted_csv(inverted_index):
 		csv_writer.writerow([key, inverted_index[key]])
 	inverted_csv_file.close()
 
+def add_tfidf():
+	tfidf_file = open('tfidf_index.csv', 'w')
+	csv_writer = csv.writer(tfidf_file)
+	csv_writer.writerow(['ID','Term', 'DocID/TF-IDF'])
 
-def get_tf(docID, freq):
-  doc = utilities.get_document(docID)
-  return freq/len(doc)
+	df = pd.read_csv("inverted_index.csv", skiprows=0)
+	counter = 0
 
-def get_df(term):
-	return len(utilities.get_term_row(term))
-
-def get_idf(term):
-    return math.log(utilities.NUMBER_DOCUMENTS/(get_df(term)+1))
-
-def get_tfidf(term, docID, freq):
-	return get_tf(docID, freq) * get_idf(term)
-
-def write_tfidf_csv():
-	print("Starting...")
-	inverted_csv_file = open('inverted_index.csv', 'r')
-	inv_index = csv.reader(inverted_csv_file)
-	print("Here...")
-	tfidf_file = open('tfidf.csv', 'w',newline='')
-	tfidf_writer = csv.writer(tfidf_file)
-	tfidf_writer.writerow(['tfidf'])
-
-	tfidf = 0
-	print("Here 2...")
-	for row in inv_index:
-		term = row[0]
-		sequence = utilities.convert_to_list(row[1])
-		print(row[1])
-		tfidf = 0
-		for i in sequence:
-			docID = int(i[0])
-			frequency = int(i[1])
-			tfidf += get_tfidf(term, docID, frequency)
-			print(tfidf)
-		tfidf_writer.writerow([tfidf])
-
+	for i in range(0, df.shape[0]-1):
+		term = df.iloc[i]['Term']
+		docIDSeq = utils.convert_to_list(df.iloc[i]['DocID&Sequence'])
+		s = []
+		for j in docIDSeq:
+			docID = int(j[0])
+			print("TERM:",term)
+			tfidf = utils.calculate_tfidf(term, docID)
+			tmp = [docID, tfidf]
+			s.append(tmp)
+		csv_writer.writerow([counter,term, s])
+		counter+= 1
+		print(s)
+		
 	tfidf_file.close()
-	inverted_csv_file.close()
 
 def main():
 	build_dictionary_csv()
