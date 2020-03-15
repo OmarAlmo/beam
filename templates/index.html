@@ -25,10 +25,19 @@
         <form method="POST" action="{{ url_for('handle_data') }}">
             <input type="text" name="query" size="55" placeholder="Search.."><br>
 
-            <input type="radio" name="model" value="boolean" checked="checked"> Boolean<br>
+            <input type="radio" name="model" value="corpus_acess" checked="checked"> Corpus Access<br>
+            <input type="radio" name="model" value="boolean"> Boolean<br>
             <input type="radio" name="model" value="vsm"> VSM<br>
 
+            <details>
+                <summary>Advanced Options:</summary>
+                Disable lemmatization:<input type="checkbox" name="lemmatization" value="False"><br>
+                Disable normalization:<input type="checkbox" name="normalization" value="False"> <br>
+            </details>
+
             <input name='search-button' type='submit' value='search' /><br>
+
+
         </form>
     </center>
 
@@ -38,7 +47,10 @@
 
     <br>
     {% for i in res %}
-    <h3>{{i[0]}} </h3>
+    <a href="">
+        <h3>{{i[0]}} </h3>
+    </a>
+    <a href="{{ url_for('res', title=title, _anchor='my_anchor') }}"></a>
     <p>{{i[1]}}</p>
     </br>
     {% endfor %}

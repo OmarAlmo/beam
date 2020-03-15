@@ -3,3 +3,4 @@ pandas
 python-Levenshtein 
 flask
 beautifulsoup4
+html5lib
