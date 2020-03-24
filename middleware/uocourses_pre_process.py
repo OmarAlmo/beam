@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import csv
 import pandas as pd
 import nltk
-nltk.download('stopwords')
+from nltk import bigrams
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
@@ -19,10 +19,7 @@ if __name__ == "__main__" and __package__ is None:
     __package__ = "middleware"
 import middleware.utils as utils
 
-
-CUSTOM_STOP_WORDS = ['course', 'knowledge', 'business', 'effectively','student','constitutes','introduce','major','minor', '(', ')', ',', '"','.', ';']
-NLTK_WORDS = stopwords.words('english')
-STOP_WORDS = CUSTOM_STOP_WORDS + NLTK_WORDS
+STOP_WORDS = stopwords.words('english')
 DICTIONARY = {}
 INVERTED_INDEX = collections.defaultdict(list)
 
@@ -34,11 +31,11 @@ class Node:
         self.courseTitle = courseTitle
         self.courseDesc = courseDesc
 
-def build_dictionary_csv():
+def build_index_csv():
     with open ('./UofO_Courses.html') as html_file:
         soup = BeautifulSoup(html_file, 'html5lib')
     
-    dictionary_file = open('./../dictionary.csv', 'w',newline='')
+    dictionary_file = open('./../uottawa_index.csv', 'w',newline='')
     dictionary = csv.writer(dictionary_file)
     dictionary.writerow(['DocID', 'Course Title', 'Course Description'])
 
@@ -67,8 +64,8 @@ def build_dictionary_csv():
         DocID +=1
     dictionary_file.close()
 
-def build_dictionary():
-	csvDataFile = open('./../dictionary.csv')
+def build_index():
+	csvDataFile = open('./../uottawa_index.csv')
 	csvReader = csv.reader(csvDataFile)
 
 	i = 0
@@ -84,9 +81,63 @@ def build_dictionary():
 	csvDataFile.close()
 	return DICTIONARY
 
+def bigram_helper(term):
+    if any(char.isdigit() for char in term):
+        return False
+    if term in STOP_WORDS:
+        return False
+    if not term.isalpha():
+        return False
+    return True 
 
-def build_inverted_index():
-	csvDataFile = open('./../dictionary.csv')
+def build_bigram():
+	index = pd.read_csv('./uottawa_index.csv', skiprows=0)
+	bigramDictionary = collections.defaultdict(list)
+
+	docID = 0
+	for row in range(0, index.shape[0] - 1):
+		try:
+			title = index.iat[row,0]
+		except:
+			title = ""
+		try:
+			desc = index.iat[row, 1]
+			if str(desc) == 'nan':
+				desc = ""
+		except:
+			desc = ""
+		print("TITLE:", title)
+		print("DESC:", desc)
+		text = title + desc
+		print(text)
+		tokenizedWords = word_tokenize(text)
+		wordList = []
+		for word in tokenizedWords:
+			if bigram_helper(word):
+				word = lemmatizer.lemmatize(word.lower())
+				wordList.append(word)
+		
+			bigram = bigrams(wordList)
+			print(docID)
+
+			for i in bigram:
+				bigramDictionary[i].append(docID)
+			docID+=1
+
+	uottawaBigramFile = open('./uottawa_bigram.csv', 'w')
+	uottawaBigram = csv.writer(uottawaBigramFile)
+	uottawaBigram.writerow(['id','bigram', 'docIDs'])
+
+	id = 0
+	for key in bigramDictionary:
+		uottawaBigram.writerow([id, [key[0],key[1]], bigramDictionary[key]])
+		print(id)
+		id += 1
+
+	uottawaBigramFile.close()
+
+def build_dictionary():
+	csvDataFile = open('./../uottawa_index.csv')
 	csvReader = csv.reader(csvDataFile)
 
 	for row in csvReader:
@@ -124,8 +175,8 @@ def build_inverted_index():
 	return INVERTED_INDEX
 
 
-def export_indeverted_csv(inverted_index):
-	inverted_csv_file = open('./../inverted_index.csv', 'w',newline='')
+def export_dictionary_csv(inverted_index):
+	inverted_csv_file = open('./../uottawa_dictionary.csv', 'w',newline='')
 	csv_writer = csv.writer(inverted_csv_file)
 	csv_writer.writerow(['Term', 'DocID&Sequence'])
 	for key in inverted_index:
@@ -133,7 +184,7 @@ def export_indeverted_csv(inverted_index):
 	inverted_csv_file.close()
 
 def add_tfidf():
-	tfidf_file = open('./../tfidf_index.csv', 'w')
+	tfidf_file = open('./../tfidf_uottawa.csv', 'w')
 	csv_writer = csv.writer(tfidf_file)
 	csv_writer.writerow(['ID','Term', 'DocID/TF-IDF'])
 
@@ -157,7 +208,7 @@ def add_tfidf():
 	tfidf_file.close()
 
 def main():
-	build_dictionary_csv()
-	build_dictionary()
-	inverted_index = build_inverted_index()
-	export_indeverted_csv(inverted_index)
+	build_index_csv()
+	dictionary = build_dictionary()
+	export_dictionary_csv(dictionary)
+	add_tfidf()
