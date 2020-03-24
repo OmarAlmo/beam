@@ -1,3 +1,11 @@
+if __name__ == "__main__" and __package__ is None:
+    from sys import path
+    from os.path import dirname as dir
+
+    path.append(dir(path[0]))
+    __package__ = "middleware"
+import middleware.utils as utils
+
 import csv
 import pandas as pd
 import math
@@ -8,7 +16,6 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import difflib
 import  collections
-import utils
 import collections
 import re
 
@@ -26,8 +33,6 @@ CUSTOM_STOP_WORDS = ['course', 'knowledge', 'business', 'effectively','student',
 NLTK_WORDS = stopwords.words('english')
 STOP_WORDS = CUSTOM_STOP_WORDS + NLTK_WORDS
 PUNCUATIONS = [',', '[', ']', '', ':']
-
-
 
 def process_query(query):
     '''

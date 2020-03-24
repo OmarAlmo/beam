@@ -132,5 +132,5 @@ dmypy.json
 **/.DS_Store
 .idea/
 __pycache__
-.csv
-.vscode
+*.csv
+/.vscode
