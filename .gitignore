@@ -133,3 +133,4 @@ dmypy.json
 .idea/
 __pycache__
 .csv
+.vscode
