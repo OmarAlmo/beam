@@ -5,13 +5,19 @@
     <title>Beam Search</title>
     <meta charset="utf-8" />
 
+    <!-- UIkit CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.3.7/dist/css/uikit.min.css" />
+
+    <!-- UIkit JS -->
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.3.7/dist/js/uikit.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/uikit@3.3.7/dist/js/uikit-icons.min.js"></script>
+
     <style>
         body {
             width: 50%;
             margin: auto;
         }
     </style>
-
 </head>
 
 <body>
@@ -23,6 +29,9 @@
 
         <!-- Search Form -->
         <form method="POST" action="{{ url_for('handle_data') }}">
+            <input type="radio" name="corpus" value="reuters" checked> Reuters<br>
+            <input type="radio" name="corpus" value="uottawa"> uOttawa Courses<br>
+
             <input type="text" name="query" size="55" placeholder="Search.."><br>
 
             <input type="radio" name="model" value="corpus_acess" checked="checked"> Corpus Access<br>
@@ -31,7 +40,7 @@
 
             <details>
                 <summary>Advanced Options:</summary>
-                Disable lemmatization:<input type="checkbox" name="lemmatization" value="False"><br>
+                Disable lemmatization & Stemming:<input type="checkbox" name="lemmatization" value="False"><br>
                 Disable normalization:<input type="checkbox" name="normalization" value="False"> <br>
             </details>
 
@@ -46,15 +55,37 @@
     {% endif %}
 
     <br>
+    {%if corpus == 'uottawa'%}
     {% for i in res %}
-    <a href="">
+    <button class="uk-button uk-button-default uk-margin-small-right" type="button"
+    uk-toggle="target: #modal-close-default">
+    <h3>{{i[0]}} </h3>
+</button>
+<div id="modal-close-default" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
         <h3>{{i[0]}} </h3>
-    </a>
-    <a href="{{ url_for('res', title=title, _anchor='my_anchor') }}"></a>
-    <p>{{i[1]}}</p>
-    </br>
-    {% endfor %}
+        <p>{{i[1]}}</p>
     </div>
+</div>
+<p>{{i[1]}}</p>
+    {% endfor %}
+    {%else%}
+    {% for i in res %}
+    <button class="uk-button uk-button-default uk-margin-small-right" type="button"
+    uk-toggle="target: #modal-close-default">
+    <h3>{{i[0]}} </h3>
+</button>
+<div id="modal-close-default" uk-modal>
+    <div class="uk-modal-dialog uk-modal-body">
+        <button class="uk-modal-close-default" type="button" uk-close></button>
+        <h3>{{i[0]}} </h3>
+        <p>{{i[5]}}</p>
+    </div>
+    <p>{{i[3]}}</p>
+
+    {% endfor %}
+    {% endif %}
 </body>
 
 </html>
