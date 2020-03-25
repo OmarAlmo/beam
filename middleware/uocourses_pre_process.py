@@ -7,9 +7,11 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import collections
-import time
+from dotenv import load_dotenv
+import time,os
 import math
 import re
+import ast
 
 if __name__ == "__main__" and __package__ is None:
     from sys import path
@@ -18,6 +20,9 @@ if __name__ == "__main__" and __package__ is None:
     path.append(dir(path[0]))
     __package__ = "middleware"
 import middleware.utils as utils
+
+loadEnv = load_dotenv('./.env')
+uottawaDir = os.getenv('uottawa_dir')
 
 STOP_WORDS = stopwords.words('english')
 DICTIONARY = {}
@@ -32,10 +37,10 @@ class Node:
         self.courseDesc = courseDesc
 
 def build_index_csv():
-    with open ('./UofO_Courses.html') as html_file:
+    with open (uottawaDir) as html_file:
         soup = BeautifulSoup(html_file, 'html5lib')
     
-    dictionary_file = open('./../uottawa_index.csv', 'w',newline='')
+    dictionary_file = open('./uottawa_index.csv', 'w',newline='')
     dictionary = csv.writer(dictionary_file)
     dictionary.writerow(['DocID', 'Course Title', 'Course Description'])
 
@@ -60,12 +65,11 @@ def build_index_csv():
 	            continue
         
         dictionary.writerow([DocID, course_title, course_description])
-	    
         DocID +=1
     dictionary_file.close()
 
 def build_index():
-	csvDataFile = open('./../uottawa_index.csv')
+	csvDataFile = open('./uottawa_index.csv')
 	csvReader = csv.reader(csvDataFile)
 
 	i = 0
@@ -97,19 +101,17 @@ def build_bigram():
 	docID = 0
 	for row in range(0, index.shape[0] - 1):
 		try:
-			title = index.iat[row,0]
+			title = index.iat[row,1]
 		except:
 			title = ""
 		try:
-			desc = index.iat[row, 1]
+			desc = index.iat[row, 2]
 			if str(desc) == 'nan':
 				desc = ""
 		except:
 			desc = ""
-		print("TITLE:", title)
-		print("DESC:", desc)
+
 		text = title + desc
-		print(text)
 		tokenizedWords = word_tokenize(text)
 		wordList = []
 		for word in tokenizedWords:
@@ -130,11 +132,13 @@ def build_bigram():
 
 	id = 0
 	for key in bigramDictionary:
-		uottawaBigram.writerow([id, [key[0],key[1]], bigramDictionary[key]])
-		print(id)
-		id += 1
+		if (len(bigramDictionary[key]) > 4):
+			uottawaBigram.writerow([id, [key[0],key[1]], bigramDictionary[key]])
+			print(id)
+			id += 1
 
 	uottawaBigramFile.close()
+
 
 def build_dictionary():
 	csvDataFile = open('./../uottawa_index.csv')
@@ -176,7 +180,7 @@ def build_dictionary():
 
 
 def export_dictionary_csv(inverted_index):
-	inverted_csv_file = open('./../uottawa_dictionary.csv', 'w',newline='')
+	inverted_csv_file = open('./uottawa_dictionary.csv', 'w',newline='')
 	csv_writer = csv.writer(inverted_csv_file)
 	csv_writer.writerow(['Term', 'DocID&Sequence'])
 	for key in inverted_index:
@@ -184,11 +188,11 @@ def export_dictionary_csv(inverted_index):
 	inverted_csv_file.close()
 
 def add_tfidf():
-	tfidf_file = open('./../tfidf_uottawa.csv', 'w')
+	tfidf_file = open('./uottawa_tfidf.csv', 'w')
 	csv_writer = csv.writer(tfidf_file)
 	csv_writer.writerow(['ID','Term', 'DocID/TF-IDF'])
 
-	df = pd.read_csv("./../inverted_index.csv", skiprows=0)
+	df = pd.read_csv("./uottawa_dictionary.csv", skiprows=0)
 	counter = 0
 
 	for i in range(0, df.shape[0]-1):

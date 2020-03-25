@@ -18,6 +18,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer, PorterStemmer
 import collections
+import ast
 
 loadEnv = load_dotenv('./.env')
 reutersDir = os.getenv('reuters_dir')
@@ -110,7 +111,7 @@ def build_bigram():
     index = pd.read_csv('./reuters_index.csv', header=0)
     bigramDictionary = collections.defaultdict(list)
 
-    for row in range(0, index.shape[0] - 1):
+    for row in range(0, index.shape[0]):
         docID = int(index.iat[row, 0])
         body = index.iat[row, 5]
 
@@ -131,12 +132,24 @@ def build_bigram():
 
     id = 0
     for key in bigramDictionary:
-        retuersBigram.writerow([id, [key[0],key[1]], bigramDictionary[key]])
-        print(id)
-        id += 1
+        if (len(bigramDictionary[key]) > 4):
+            retuersBigram.writerow([id, [key[0],key[1]], bigramDictionary[key]])
+            print(id)
+            id += 1
 
     reutersBigramFile.close()
+build_bigram()
 
+def reduce_bigram():
+    df = pd.read_csv('./reuters_bigram.csv', index_col=0, header=0)
+    # df = df[len(ast.literal_eval(df.docIDs)) < 5]
+    for i in range(0,df.shape[0]-1):
+        lenDocIDs = len(ast.literal_eval(df.iat[i,1]))
+        if lenDocIDs < 5:
+            df.drop(df.index[i])
+            print("dropeed")
+    df.to_csv('reuters_bigram_2.csv')
+# reduce_bigram()
 
 def build_dictionary():
     index = pd.read_csv('./reuters_index.csv', header=0)
