@@ -17,7 +17,18 @@
             width: 50%;
             margin: auto;
         }
+        .column {
+            float: left;
+            width: 50%;
+        }
+        
+        .row:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
     </style>
+
 </head>
 
 <body>
@@ -29,30 +40,37 @@
 
         <!-- Search Form -->
         <form method="POST" action="{{ url_for('handle_data') }}">
-            <input type="radio" name="corpus" value="reuters" checked> Reuters<br>
-            <input type="radio" name="corpus" value="uottawa"> uOttawa Courses<br>
+            <div>
+                <input type="radio" name="corpus" value="reuters" checked> Reuters<br>
+                <input type="radio" name="corpus" value="uottawa"> uOttawa Courses<br>
+            </div>
 
-            <input type="text" name="query" size="55" placeholder='search...'><br>
+            <input type="text" name="query" size="55" placeholder='Search...' value="{{query}}"><br>
 
             <input type="radio" name="model" value="corpus_acess" checked="checked"> Corpus Access<br>
             <input type="radio" name="model" value="boolean"> Boolean<br>
             <input type="radio" name="model" value="vsm"> VSM<br>
 
             <details>
-                <summary>Advanced Options:</summary>
-                Disable lemmatization & Stemming:<input type="checkbox" name="lemmatization" value="False"><br>
-                Disable normalization:<input type="checkbox" name="normalization" value="False"> <br>
+                <center>
+                    <summary>Advanced Options:</summary>
+                    <div class="row">
+                        <div class="column">
+                            Disable lemmatization & Stemming:<input type="checkbox" name="lemmatization" value="False"><br>
+                            Disable normalization:<input type="checkbox" name="normalization" value="False"> <br>
+                        </div>
+                        <div class="column">
+                            Enable query expansion:<input type="checkbox" name="globalexpansion" value="True"><br>
+                        </div>
+                    </div>
+                </center>
             </details>
-
+            <br>
             <input name='search-button' type='submit' value='search' /><br>
 
 
         </form>
     </center>
-
-    {% if query %}
-    <h5>Query: {{query}} </h5>
-    {% endif %}
 
     <br>
     {%if corpus == 'uottawa'%}

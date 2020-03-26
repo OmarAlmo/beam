@@ -56,7 +56,7 @@ def infix_to_postfix(query):
     return ' '.join(postfix)
 
 
-def process_postfix(corpus,postfix):
+def process_postfix(corpus,postfix, globalexpansion):
     '''
 	input: postfix query
 	output: list of docIDs of query
@@ -71,33 +71,11 @@ def process_postfix(corpus,postfix):
             a = stack.pop()
             b = stack.pop()
             op = word
-            res = boolean_retrieval(corpus,a, b, op)
+            res = boolean_retrieval(corpus,a, b, op, globalexpansion)
             output = res
             stack.push(res)
 
     return output
-
-
-def boolean_retrieval(corpus,a, b, op):
-    if type(a) != list:
-        listA = get_docs_ids(corpus,a)
-    else:
-        listA = a
-
-    if type(b) != list:
-        listB = get_docs_ids(corpus,b)
-    else:
-        listB = b
-
-    if op == 'AND':
-        res = list(set(listA).intersection(listB))
-    elif op == 'OR':
-        res = list(set(listA).union(set(listB)))
-    else:  # op == 'AND_NOT':
-        res = list(set(listA) - set(listB))
-
-    return res
-
 
 def get_docs_ids(corpus,word):
     if corpus == 'uottawa':
@@ -131,6 +109,55 @@ def get_docs_ids(corpus,word):
     return output
 
 
+def boolean_retrieval(corpus,a, b, op, globalexpansion):
+
+    if type(a) != list:
+        listA = get_docs_ids(corpus,a)
+        if globalexpansion: 
+            synA = utils.get_synonym(a)
+            print("synonyms added for",a, ":")
+            try: 
+                t1 = get_docs_ids(synA[0]) 
+                listA += t1
+                print("1st synonym",synA[0])
+            except: pass
+            try: 
+                t2 = get_docs_ids(synA[1]) 
+                listA += t2
+                print("2nd synonym",synA[1])
+            except: pass        
+    else:
+        listA = a
+
+    if type(b) != list:
+        listB = get_docs_ids(corpus,b)
+        if globalexpansion: 
+            synB = utils.get_synonym(b)
+            print("synonyms added for",b, ":")
+            try: 
+                t1 = get_docs_ids(synB[0]) 
+                listB += t1
+                print("1st synonym",synB[0])
+            except: pass
+            try: 
+                t2 = get_docs_ids(synB[1]) 
+                listB += t2
+                print("2nd synonym",synB[1])
+            except: pass
+    else:
+        listB = b
+
+    if op == 'AND':
+        res = list(set(listA).intersection(listB))
+    elif op == 'OR':
+        res = list(set(listA).union(set(listB)))
+    else:  # op == 'AND_NOT':
+        res = list(set(listA) - set(listB))
+
+    return res
+
+boolean_retrieval('reuters', 'operating', 'system', 'AND', True)
+
 def wildcard_to_regex(wildcard_word):
     w = list(wildcard_word)
     out = ""
@@ -141,14 +168,15 @@ def wildcard_to_regex(wildcard_word):
     return out
 
 
-def main(corpus, query):
+def main(corpus, query, globalexpansion):
+
     if len(query.split()) < 2:
         ids = get_docs_ids(corpus,query)
         documents = utils.retrieve_documents(corpus,ids[:15])
         
     else:
         postfixquery = infix_to_postfix(query)
-        ids = process_postfix(corpus,postfixquery)
+        ids = process_postfix(corpus,postfixquery,globalexpansion)
         documents = utils.retrieve_documents(corpus,ids[:15])
         if documents == []:
             return [["No documents with that query."]]

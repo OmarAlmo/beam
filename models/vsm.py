@@ -10,7 +10,6 @@ import csv
 import pandas as pd
 import math
 import nltk
-nltk.download('stopwords')
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
@@ -32,24 +31,38 @@ lemmatizer = WordNetLemmatizer()
 CUSTOM_STOP_WORDS = ['course', 'knowledge', 'business', 'effectively','student','constitutes','introduce','major','minor', '(', ')', ',', '"','.', ';']
 NLTK_WORDS = stopwords.words('english')
 STOP_WORDS = CUSTOM_STOP_WORDS + NLTK_WORDS
-PUNCUATIONS = [',', '[', ']', '', ':']
 
-def process_query(query):
+def process_query(corpus, query, globalexpansion):
     '''
-    input: query
+    input: query, corpus, bool if user wants global query expansion
     output: tokenized list of query with removed stop words and lemmatized & lower case words
+    global query expansion done on words with df < 10
     '''
-    output = []
+    output = set()
     query_list = word_tokenize(query)
+
+    if (len(query_list) < 2): n = 5
+    else: n = 2
 
     for word in query_list:
         if word in STOP_WORDS:
             continue
         else:
-            word = lemmatizer.lemmatize(word.lower())
-            output.append(word)
-    return output
+            if globalexpansion:
+                synonyms = utils.get_synonym(word)
+                print("synonym for ", word)
+                try: 
+                    output.add(synonyms[0]) 
+                    print("1st synonym: ",synonyms[0])
+                except: pass
 
+                try: 
+                    output.add(synonyms[1])
+                    print("2nd synonym: ", synonyms[1])
+                except: pass
+            
+            output.add(lemmatizer.lemmatize(word.lower()))
+    return list(output)
 
 def measure_scores(corpus,query):
     scores = collections.defaultdict(list)
@@ -72,8 +85,9 @@ def calculate_ranking(scores):
         ids.append(k)
     return ids
 
-def main(corpus,query):
-    query_list = process_query(query)
+def main(corpus,query,globalexpansion):
+
+    query_list = process_query(corpus,query, globalexpansion)
     scores = measure_scores(corpus,query_list)
     ids_ranking = calculate_ranking(scores)
     return utils.retrieve_documents(corpus,ids_ranking[:15])
