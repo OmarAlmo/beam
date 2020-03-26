@@ -22,10 +22,10 @@ def retrieve_documents(corpus, id_list):
     else:
         df = pd.read_csv('./reuters_index.csv', index_col=0)
         for i in id_list:
-            # [1title, 2topics, 3author, 4date, 5body])
+            # [0title, 1topics, 2author, 3date, 4body])
             tmp = [
-                df.iat[int(i), 1], df.iat[int(i), 2], df.iat[int(i), 3],
-                df.iat[int(i), 4], df.iat[int(i), 5]
+                df.iat[int(i), 0], df.iat[int(i), 1], df.iat[int(i), 2],
+                df.iat[int(i), 3], df.iat[int(i), 4]
             ]
             output.append(tmp)
     return output
@@ -56,19 +56,16 @@ def get_document(corpus, i):
 
 def get_term_docIDSeq(corpus, term):
     if corpus == 'uottawa':
-        df = pd.read_csv("./uottawa_tfidf.csv", index_col=0)
-        j = 1
+        df = pd.read_csv("./uottawa_dictionary.csv", index_col=0)
     else:
-        df = pd.read_csv('./reuters_tfidf.csv', index_col=0)
-        j = 2
+        df = pd.read_csv('./reuters_dictionary.csv', index_col=0)
 
     for i in range(0, df.shape[0] - 1):
-        if term == df.iloc[i]['term']:
-            row = df.iat[i, j]
-            p = re.compile(PLAIN_INDEX_REGEX)
+        if term == df.iloc[i]['Term']:
+            row = df.iat[i, 1]
+            p = re.compile(TFIDF_INDEX_REGEX)
             index_list = p.findall(row)
     return [i[1:-1].split(', ') for i in index_list]
-
 
 def convert_to_list(line):
     p = re.compile(TFIDF_INDEX_REGEX)
@@ -103,10 +100,10 @@ def calculate_tfidf(corpus, term, docID):
 
 def get_tfidf(corpus, term, docID):
     if corpus == 'uottawa':
-        df = pd.read_csv('./uottawa_tfidf.csv')
+        df = pd.read_csv('./uottawa_index.csv')
         return df.loc[df['Term'] == term]['tfidf'].values
     else:
-        df = pd.read_csv('./reuters_tfidf.csv')
+        df = pd.read_csv('./reuters_index.csv')
         return df.loc[df['Term'] == term]['tfidf'].values
 
 def get_bigram(corpus,term):
