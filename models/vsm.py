@@ -1,3 +1,11 @@
+if __name__ == "__main__" and __package__ is None:
+    from sys import path
+    from os.path import dirname as dir
+
+    path.append(dir(path[0]))
+    __package__ = "middleware"
+import middleware.utils as utils
+
 import csv
 import pandas as pd
 import math
@@ -8,7 +16,6 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import difflib
 import  collections
-import utils
 import collections
 import re
 
@@ -27,8 +34,6 @@ NLTK_WORDS = stopwords.words('english')
 STOP_WORDS = CUSTOM_STOP_WORDS + NLTK_WORDS
 PUNCUATIONS = [',', '[', ']', '', ':']
 
-
-
 def process_query(query):
     '''
     input: query
@@ -46,10 +51,10 @@ def process_query(query):
     return output
 
 
-def measure_scores(query):
+def measure_scores(corpus,query):
     scores = collections.defaultdict(list)
     for term in query:
-        row = utils.get_term_docIDSeq(term)
+        row = utils.get_term_docIDSeq(corpus,term)
         for i in row:
             docID = i[0]
             tfidf = i[1]
@@ -67,9 +72,9 @@ def calculate_ranking(scores):
         ids.append(k)
     return ids
 
-def main(query):
+def main(corpus,query):
     query_list = process_query(query)
-    scores = measure_scores(query_list)
+    scores = measure_scores(corpus,query_list)
     ids_ranking = calculate_ranking(scores)
-    return utils.retrieve_documents(ids_ranking)
+    return utils.retrieve_documents(corpus,ids_ranking[:15])
 

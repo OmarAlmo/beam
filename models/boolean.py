@@ -1,9 +1,3 @@
-import csv, re
-import pandas as pd
-from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer
-from pythonds.basic.stack import Stack
-
 if __name__ == "__main__" and __package__ is None:
     from sys import path
     from os.path import dirname as dir
@@ -12,8 +6,21 @@ if __name__ == "__main__" and __package__ is None:
     __package__ = "middleware"
 import middleware.utils as utils
 
+import csv, re
+import pandas as pd
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from pythonds.basic.stack import Stack
+
+
 OPERATORS = ['AND', 'OR', 'AND_NOT', '(', ')']
-PRECIDENT = {'(': 1, 'AND': 2, 'OR': 2, 'NOT': 2, 'AND_NOT': 2, }
+PRECIDENT = {
+    '(': 1,
+    'AND': 2,
+    'OR': 2,
+    'NOT': 2,
+    'AND_NOT': 2,
+}
 PUNCUATIONS = [',', '[', ']', '']
 INDEX_REGEX = r'(\[\d+, \d+\])'
 lemmatizer = WordNetLemmatizer()
@@ -21,130 +28,128 @@ lemmatizer = WordNetLemmatizer()
 LEMMATIZE = True
 NORMALIZE = True
 
+
 def infix_to_postfix(query):
-	query_list = word_tokenize(query)
+    query_list = word_tokenize(query)
 
-	stack = Stack()
-	postfix = []
+    stack = Stack()
+    postfix = []
 
-	for word in query_list:
-		if word not in OPERATORS:
-			postfix.append(word)
-		elif word == '(':
-			stack.push(word)
-		elif word == ')':
-			top = stack.pop()
-			while top != '(':
-				postfix.append(top)
-				top = stack.pop()
-		else:
-			while not stack.isEmpty() and PRECIDENT[stack.peek()] >= PRECIDENT[word]:
-				postfix.append(stack.pop())
-			stack.push(word)
+    for word in query_list:
+        if word not in OPERATORS:
+            postfix.append(word)
+        elif word == '(':
+            stack.push(word)
+        elif word == ')':
+            top = stack.pop()
+            while top != '(':
+                postfix.append(top)
+                top = stack.pop()
+        else:
+            while not stack.isEmpty() and PRECIDENT[
+                    stack.peek()] >= PRECIDENT[word]:
+                postfix.append(stack.pop())
+            stack.push(word)
 
-	while not stack.isEmpty():
-		postfix.append(stack.pop())
-	return ' '.join(postfix)
+    while not stack.isEmpty():
+        postfix.append(stack.pop())
+    return ' '.join(postfix)
 
-def process_postfix(postfix):
-	'''
+
+def process_postfix(corpus,postfix):
+    '''
 	input: postfix query
 	output: list of docIDs of query
 	'''
-	postfix_list = word_tokenize(postfix)
-	stack = Stack()
-	output = []
-	for word in postfix_list:
-		if word not in OPERATORS:
-			stack.push(word)
-		else:
-			a = stack.pop()
-			b = stack.pop()
-			op = word
-			res = boolean_retrieval(a, b, op)
-			output = res
-			stack.push(res)
+    postfix_list = word_tokenize(postfix)
+    stack = Stack()
+    output = []
+    for word in postfix_list:
+        if word not in OPERATORS:
+            stack.push(word)
+        else:
+            a = stack.pop()
+            b = stack.pop()
+            op = word
+            res = boolean_retrieval(corpus,a, b, op)
+            output = res
+            stack.push(res)
 
-	return output
+    return output
 
-def boolean_retrieval(a, b, op):
-	if type(a) != list:
-		listA = get_docs_ids(a)
-	else:
-		listA = a
 
-	if type(b) != list:
-		listB = get_docs_ids(b)
-	else:
-		listB = b
+def boolean_retrieval(corpus,a, b, op):
+    if type(a) != list:
+        listA = get_docs_ids(corpus,a)
+    else:
+        listA = a
 
-	if op == 'AND':
-		res = list(set(listA).intersection(listB))
-	elif op == 'OR':
-		res = list(set(listA).union(set(listB)))
-	else:  # op == 'AND_NOT':
-		res = list(set(listA) - set(listB))
-	
-	return res
+    if type(b) != list:
+        listB = get_docs_ids(corpus,b)
+    else:
+        listB = b
 
-def get_docs_ids(word):
-	wildcard = False
+    if op == 'AND':
+        res = list(set(listA).intersection(listB))
+    elif op == 'OR':
+        res = list(set(listA).union(set(listB)))
+    else:  # op == 'AND_NOT':
+        res = list(set(listA) - set(listB))
 
-	if '*' in word:
-		wildcard = True
+    return res
 
-	index_file = open('./../inverted_index.csv', 'r')
-	index = csv.reader(index_file)
 
-	df = pd.read_csv("./../inverted_index.csv", header=0)
+def get_docs_ids(corpus,word):
+    if corpus == 'uottawa':
+        df = pd.read_csv("./uottawa_dictionary.csv", header=0)
+    else:
+        df = pd.read_csv("./reuters_dictionary.csv", header=0)
 
-	if eval(LEMMATIZE):
-		word = lemmatizer.lemmatize(word)
-	if eval(NORMALIZE):
-		pass
+    wildcard = False
 
-	output = []
+    if '*' in word:
+        wildcard = True
 
-	if wildcard:
-		regx = re.compile(wildcard_to_regex(word))
-		query = "re.match(regx, df.iloc[i]['Term'])"
-	else:
-		query = "(word == df.iloc[i]['Term'])"
-	
-	for i in range(0, df.shape[0]):
-		if (eval(query)):
-			row = df.iat[i,1]
-			p = re.compile(INDEX_REGEX)
-			index_list = p.findall(row)
 
-			res = [i[1 : -1].split(', ') for i in index_list] 
-			
-			j = 0
-			for j in range(len(res)):
-				output.append(res[j][0])
-				j+=1
+    if LEMMATIZE:
+        word = lemmatizer.lemmatize(word)
+    if NORMALIZE:
+        word = word.lower()
 
-	index_file.close()
-	return(output)
+    output = []
+
+    if wildcard:
+        regx = re.compile(wildcard_to_regex(word))
+        query = "re.match(regx, df.iloc[i]['Term'])"
+        pass
+    else:
+        row = utils.get_term_docIDSeq(corpus, word)
+
+        for i in row:
+            output.append(i[0])
+
+    return output
+
 
 def wildcard_to_regex(wildcard_word):
-	w = list(wildcard_word)
-	out = ""
-	for c in w:
-		if c == '*':
-			c = '(.'+c+')'
-		out += c
-	return out
+    w = list(wildcard_word)
+    out = ""
+    for c in w:
+        if c == '*':
+            c = '(.' + c + ')'
+        out += c
+    return out
 
 
-def main(query):
-	if len(query.split()) < 2:
-		ids = get_docs_ids(query)
-		documents = utils.retrieve_documents(ids)
-	else:
-		postfixquery = infix_to_postfix(query)
-		ids = process_postfix(postfixquery)
-		documents = utils.retrieve_documents(ids)
-		if documents == []:
-			return [["No documents with that query."]]
-	return documents
+def main(corpus, query):
+    if len(query.split()) < 2:
+        ids = get_docs_ids(corpus,query)
+        documents = utils.retrieve_documents(corpus,ids[:15])
+        
+    else:
+        postfixquery = infix_to_postfix(query)
+        ids = process_postfix(corpus,postfixquery)
+        documents = utils.retrieve_documents(corpus,ids[:15])
+        if documents == []:
+            return [["No documents with that query."]]
+    return documents
