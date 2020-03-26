@@ -51,10 +51,10 @@ def process_query(query):
     return output
 
 
-def measure_scores(query):
+def measure_scores(corpus,query):
     scores = collections.defaultdict(list)
     for term in query:
-        row = utils.get_term_docIDSeq(term)
+        row = utils.get_term_docIDSeq(corpus,term)
         for i in row:
             docID = i[0]
             tfidf = i[1]
@@ -72,9 +72,9 @@ def calculate_ranking(scores):
         ids.append(k)
     return ids
 
-def main(query):
+def main(corpus,query):
     query_list = process_query(query)
-    scores = measure_scores(query_list)
+    scores = measure_scores(corpus,query_list)
     ids_ranking = calculate_ranking(scores)
-    return utils.retrieve_documents(ids_ranking)
+    return utils.retrieve_documents(corpus,ids_ranking[:15])
 

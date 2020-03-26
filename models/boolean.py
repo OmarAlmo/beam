@@ -56,7 +56,7 @@ def infix_to_postfix(query):
     return ' '.join(postfix)
 
 
-def process_postfix(postfix):
+def process_postfix(corpus,postfix):
     '''
 	input: postfix query
 	output: list of docIDs of query
@@ -71,21 +71,21 @@ def process_postfix(postfix):
             a = stack.pop()
             b = stack.pop()
             op = word
-            res = boolean_retrieval(a, b, op)
+            res = boolean_retrieval(corpus,a, b, op)
             output = res
             stack.push(res)
 
     return output
 
 
-def boolean_retrieval(a, b, op):
+def boolean_retrieval(corpus,a, b, op):
     if type(a) != list:
-        listA = get_docs_ids(a)
+        listA = get_docs_ids(corpus,a)
     else:
         listA = a
 
     if type(b) != list:
-        listB = get_docs_ids(b)
+        listB = get_docs_ids(corpus,b)
     else:
         listB = b
 
@@ -99,13 +99,17 @@ def boolean_retrieval(a, b, op):
     return res
 
 
-def get_docs_ids(word):
+def get_docs_ids(corpus,word):
+    if corpus == 'uottawa':
+        df = pd.read_csv("./uottawa_dictionary.csv", header=0)
+    else:
+        df = pd.read_csv("./reuters_dictionary.csv", header=0)
+
     wildcard = False
 
     if '*' in word:
         wildcard = True
 
-    df = pd.read_csv("./uottawa_dictionary.csv", header=0)
 
     if LEMMATIZE:
         word = lemmatizer.lemmatize(word)
@@ -117,23 +121,14 @@ def get_docs_ids(word):
     if wildcard:
         regx = re.compile(wildcard_to_regex(word))
         query = "re.match(regx, df.iloc[i]['Term'])"
+        pass
     else:
-        query = "(word == df.iloc[i]['Term'])"
+        row = utils.get_term_docIDSeq(corpus, word)
 
-    for i in range(0, df.shape[0]):
-        if (eval(query)):
-            row = df.iat[i, 1]
-            p = re.compile(INDEX_REGEX)
-            index_list = p.findall(row)
+        for i in row:
+            output.append(i[0])
 
-            res = [i[1:-1].split(', ') for i in index_list]
-
-            j = 0
-            for j in range(len(res)):
-                output.append(res[j][0])
-                j += 1
-
-    return (output)
+    return output
 
 
 def wildcard_to_regex(wildcard_word):
@@ -148,13 +143,13 @@ def wildcard_to_regex(wildcard_word):
 
 def main(corpus, query):
     if len(query.split()) < 2:
-        ids = get_docs_ids(query)
-        documents = utils.retrieve_documents(ids)
+        ids = get_docs_ids(corpus,query)
+        documents = utils.retrieve_documents(corpus,ids[:15])
+        
     else:
         postfixquery = infix_to_postfix(query)
-        ids = process_postfix(postfixquery)
-        documents = utils.retrieve_documents(corpus,ids)
+        ids = process_postfix(corpus,postfixquery)
+        documents = utils.retrieve_documents(corpus,ids[:15])
         if documents == []:
             return [["No documents with that query."]]
-    print(type(documents))
     return documents

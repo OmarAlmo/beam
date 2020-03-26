@@ -32,7 +32,7 @@
             <input type="radio" name="corpus" value="reuters" checked> Reuters<br>
             <input type="radio" name="corpus" value="uottawa"> uOttawa Courses<br>
 
-            <input type="text" name="query" size="55" placeholder="Search.."><br>
+            <input type="text" name="query" size="55" placeholder='search...'><br>
 
             <input type="radio" name="model" value="corpus_acess" checked="checked"> Corpus Access<br>
             <input type="radio" name="model" value="boolean"> Boolean<br>
@@ -58,31 +58,39 @@
     {%if corpus == 'uottawa'%}
     {% for i in res %}
     <button class="uk-button uk-button-default uk-margin-small-right" type="button"
-    uk-toggle="target: #modal-close-default">
-    <h3>{{i[0]}} </h3>
-</button>
-<div id="modal-close-default" uk-modal>
-    <div class="uk-modal-dialog uk-modal-body">
-        <button class="uk-modal-close-default" type="button" uk-close></button>
+        uk-toggle="target: #modal-close-default">
         <h3>{{i[0]}} </h3>
-        <p>{{i[1]}}</p>
+    </button>
+    <div id="modal-close-default" uk-modal>
+        <div class="uk-modal-dialog uk-modal-body">
+            <button class="uk-modal-close-default" type="button" uk-close></button>
+            <h3>{{i[0]}} </h3>
+            <p>{{i[1]}}</p>
+        </div>
     </div>
-</div>
-<p>{{i[1]}}</p>
+    <p>{{i[1]}}</p>
     {% endfor %}
+    <!-- reuters -->
     {%else%}
     {% for i in res %}
+    <div class="uk-card uk-card-hover uk-card-body">
     <button class="uk-button uk-button-default uk-margin-small-right" type="button"
     uk-toggle="target: #modal-close-default">
     <h3>{{i[0]}} </h3>
-</button>
-<div id="modal-close-default" uk-modal>
-    <div class="uk-modal-dialog uk-modal-body">
-        <button class="uk-modal-close-default" type="button" uk-close></button>
-        <h3>{{i[0]}} </h3>
-        <p>{{i[5]}}</p>
+        </button>
+        <div id="modal-close-default" uk-modal>
+            <div class="uk-modal-dialog uk-modal-body">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <h3>{{i[0]}} </h3>
+                <h5>Topics: {{i[1]}} </h5>
+                <h6>Author: {{i[2]}}</h6>
+                <p>Date: {{i[3]}}</p>
+                <p>{{i[4]}}</p>
+            </div>
+        </div>
+        <p>{{i[4][:200]}}...</p>
     </div>
-    <p>{{i[3]}}</p>
+    <hr>
 
     {% endfor %}
     {% endif %}
