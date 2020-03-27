@@ -33,6 +33,8 @@ def retrieve_documents(corpus, id_list):
             output.append(tmp)
     return output
 
+
+
 def get_document_content(corpus, i):
     if corpus == 'uottawa':
         df = pd.read_csv('./uottawa_index.csv', header=0, index_col=0)
@@ -66,7 +68,8 @@ def get_term_docIDSeq(corpus, term):
             row = df.iat[i, 1]
             p = re.compile(TFIDF_INDEX_REGEX)
             index_list = p.findall(row)
-    return [j[1:-1].split(', ') for j in index_list]
+            return [j[1:-1].split(', ') for j in index_list]
+    return[]
 
 def convert_to_list(line):
     p = re.compile(TFIDF_INDEX_REGEX)
@@ -140,13 +143,12 @@ def get_synonym(term):
         output[t2] = sim
 
     sortedOutput = {k: v for k, v in sorted(output.items(), key=lambda item: item[1], reverse=True)}
-
+    print(sortedOutput)
     res = []
+    
     for syn in sortedOutput:
-        print(syn)
-        for l in syn.lemmas():
-            res.append(l.name())
+        res.append(syn.name().split('.')[0])
 
-    return list(set(res))
-
-print(get_synonym('country'))
+    res = list(dict.fromkeys(res))
+    res.remove(term)
+    return res
