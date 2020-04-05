@@ -1,16 +1,18 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 
 import models.boolean
 import models.vsm
 from middleware.utils import retrieve_documents
+import collections
 
 app = Flask(__name__)
 
+RELEVANT_DOCS = collections.defaultdict(list)
+NRELEVANT_DOCS = collections.defaultdict(list)
 
 @app.route('/')
 def index():
     return render_template('index.html')
-
 
 @app.route('/', methods=['POST'])
 def handle_data():
@@ -18,7 +20,7 @@ def handle_data():
     model = request.form['model']
     corpus = request.form['corpus']
     globalexpansion = request.form.get('globalexpansion')
-    print(str(query))
+
     try: models.boolean.LEMMATIZE = request.form.getlist("lemmatization")[0]
     except: pass
 
@@ -39,9 +41,10 @@ def handle_data():
         models.boolean.LEMMATIZE = True
         models.boolean.NORMALIZE = True
         return render_template('index.html',
-                                flag=True, 
+                                flag=True,
                                 res=res, 
-                                query=str(query),
+                                model=model,
+                                query=query,
                                 corpus=corpus)
 
     else:
@@ -49,10 +52,34 @@ def handle_data():
         return render_template('index.html',
                                flag=True,
                                res=res,
-                               query=str(query),
+                               model=model,
+                               query=query,
                                corpus=corpus)
+
+# Handle relevance
+@app.route('/relevance', methods=['POST'])
+def relevance():
+
+    relevance = str(request.data).split(",")
+
+    if (relevance[0] == "b'relevant"):
+        docID = relevance[1]
+        q = relevance[2]
+        if q in RELEVANT_DOCS.keys():
+            RELEVANT_DOCS[q] += [docID]
+        else:
+            RELEVANT_DOCS[q] = [docID]
+    else:
+        docID = relevance[1]
+        q = relevance[2]
+        if q in NRELEVANT_DOCS.keys():
+            NRELEVANT_DOCS[q] += docID
+        else:
+            NRELEVANT_DOCS[q] = docID
+    
+    return ('')
 
 
 if __name__ == "__main__":
     print("App initiated.")
-    app.run(port=8080)
+    app.run(port=8080,debug=True)
