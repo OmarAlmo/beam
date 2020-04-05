@@ -120,7 +120,6 @@
             <button onclick="processRelevance('relevant','{{docNumber.value}}', '{{docID}}', '{{query}}')" type="submit" class="uk-button uk-button-primary uk-position-small" id="relev{{docNumber.value}}" value="relevant">Relevant</button>
             <button onclick="processRelevance('notrelevant','{{docNumber.value}}', '{{docID}}', '{{query}}')" type="submit" class="uk-button uk-button-danger uk-position-small" id="relev{{docNumber.value}}" value="notrelevant">Not Relevant</button>
         </form>
-        {% if docID == 'vsm' %}
         <div id="successAlert{{docNumber.value}}" class="uk-alert-success" uk-alert style="display:none;">
             <a class="uk-alert-close" uk-close></a>
             <p>Relevance recorded.</p>
