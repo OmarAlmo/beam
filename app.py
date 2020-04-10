@@ -1,14 +1,13 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request
 
 import models.boolean
 import models.vsm
-from middleware.utils import retrieve_documents
-import collections
+from middleware.utils import retrieve_documents, RELEVANT_DOCS, NRELEVANT_DOCS
 
 app = Flask(__name__)
 
-RELEVANT_DOCS = collections.defaultdict(list)
-NRELEVANT_DOCS = collections.defaultdict(list)
+# RELEVANT_DOCS = collections.defaultdict(list)
+# NRELEVANT_DOCS = collections.defaultdict(list)
 
 @app.route('/')
 def index():
@@ -64,19 +63,21 @@ def relevance():
 
     if (relevance[0] == "b'relevant"):
         docID = relevance[1]
-        q = relevance[2]
+        q = relevance[2].replace("'","")
+        print("Q2", q)
         if q in RELEVANT_DOCS.keys():
             RELEVANT_DOCS[q] += [docID]
         else:
             RELEVANT_DOCS[q] = [docID]
     else:
         docID = relevance[1]
-        q = relevance[2]
+        q = relevance[2].replace("'","")
         if q in NRELEVANT_DOCS.keys():
-            NRELEVANT_DOCS[q] += docID
+            NRELEVANT_DOCS[q] += [docID]
         else:
-            NRELEVANT_DOCS[q] = docID
-    
+            NRELEVANT_DOCS[q] = [docID]
+    print("RELEVANT:", RELEVANT_DOCS)
+    print("NRELEVANT:", NRELEVANT_DOCS)
     return ('')
 
 

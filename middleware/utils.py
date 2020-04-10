@@ -5,6 +5,7 @@ import math
 import ast
 import nltk
 from nltk.corpus import wordnet, brown
+import collections
 
 
 TFIDF_INDEX_REGEX = r'\[\d+, [+-]?[0-9]*[.]?[0-9]+\]'
@@ -13,6 +14,12 @@ PLAIN_INDEX_REGEX = r'(\[\d+, \d+\])'
 UOTTAWA_NUMBER_DOCUMENTS = 612 #pd.read_csv('./../uottawa_index.csv').shape[0] - 1
 REUTERS_NUMBER_DOCUMENTS = 19042 #pd.read_csv('./../reuters_index.csv').shape[0] - 1
 
+# Relevnace format: {q:DocIDS}
+RELEVANT_DOCS = collections.defaultdict(list)
+NRELEVANT_DOCS = collections.defaultdict(list)
+
+# RELEVANT_DOCS = {'canada': ['16135']}
+# NRELEVANT_DOCS = {'canada': ['4065']}
 
 def retrieve_documents(corpus, id_list):
     output = []
@@ -23,24 +30,23 @@ def retrieve_documents(corpus, id_list):
             tmp = [df.iat[int(i), 0], df.iat[int(i), 1]]
             output.append(tmp)
     else:
-        df = pd.read_csv('./reuters_index.csv', index_col=0)
+        df = pd.read_csv('./reuters_index.csv')
         for i in id_list:
-            # [0title, 1topics, 2author, 3date, 4body])
+            # [0title, 1topics, 2author, 3date, 4body, 5docID])
             tmp = [
-                df.iat[int(i), 0], df.iat[int(i), 1], df.iat[int(i), 2],
-                df.iat[int(i), 3], df.iat[int(i), 4]
+                df.iat[int(i), 1], df.iat[int(i), 2], df.iat[int(i), 3],
+                df.iat[int(i), 4], df.iat[int(i), 5], df.iat[int(i), 0]
             ]
             output.append(tmp)
     return output
 
 
-
-def get_document_content(corpus, i):
+def get_document_content(corpus, docID):
     if corpus == 'uottawa':
         df = pd.read_csv('./uottawa_index.csv', header=0, index_col=0)
 
-        title = df.iat[i, 0]
-        desc = df.iat[i, 1]
+        title = df.iat[docID, 0]
+        desc = df.iat[docID, 1]
 
         if type(title) != str:
             title = ""
@@ -52,10 +58,11 @@ def get_document_content(corpus, i):
     else:
         df = pd.read_csv('./reuters_index.csv', header=0, index_col=0)
 
-        title = df.iat[i, 0]
-        body = df.iat[i, 3]
-
+        title = df.iat[docID, 0]
+        body = df.iat[docID, 4]
         return title + body
+        # return df.iat[docID, 4]
+
 
 def get_term_docIDSeq(corpus, term):
     if corpus == 'uottawa':
@@ -88,6 +95,7 @@ def get_tf(corpus, term, docID):
 def get_df(corpus, term):
     return len(get_term_docIDSeq(corpus, term))
 
+
 def get_idf(corpus, term):
     if corpus == 'uottawa':
         return math.log10(UOTTAWA_NUMBER_DOCUMENTS /
@@ -98,12 +106,11 @@ def calculate_tfidf(corpus, term, docID):
     return get_tf(corpus, term, docID) * get_idf(corpus, term)
 
 def get_tfidf(corpus, term, docID):
-    if corpus == 'uottawa':
-        df = pd.read_csv('./uottawa_dictionary.csv')
-        return df.loc[df['Term'] == term]['DocID/TF-IDF'].values
-    else:
-        df = pd.read_csv('./reuters_dictionary.csv')
-        return df.loc[df['Term'] == term]['DocID/TF-IDF'].values
+    row = get_term_docIDSeq(corpus, term)
+    for elem in row:
+        if elem[0] == str(docID):
+            return elem[1]
+    return 0
 
 def get_bigram(corpus,term):
     if corpus == 'uottawa':
@@ -131,7 +138,6 @@ def get_bigram(corpus,term):
 def get_synonym(term):
     t1 = wordnet.synset(wordnet.synsets(term)[0].name())
 
-    synset = set()
     synonyms = []
     for syn in wordnet.synsets(term):
         synonyms.append(syn.name())
@@ -143,9 +149,8 @@ def get_synonym(term):
         output[t2] = sim
 
     sortedOutput = {k: v for k, v in sorted(output.items(), key=lambda item: item[1], reverse=True)}
-    print(sortedOutput)
-    res = []
     
+    res = []
     for syn in sortedOutput:
         res.append(syn.name().split('.')[0])
 

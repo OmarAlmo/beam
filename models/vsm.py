@@ -4,7 +4,9 @@ if __name__ == "__main__" and __package__ is None:
 
     path.append(dir(path[0]))
     __package__ = "middleware"
-import middleware.utils as utils
+
+from middleware import utils 
+from middleware import relevance
 
 import csv
 import pandas as pd
@@ -15,16 +17,7 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import difflib
 import  collections
-import collections
 import re
-
-if __name__ == "__main__" and __package__ is None:
-    from sys import path
-    from os.path import dirname as dir
-
-    path.append(dir(path[0]))
-    __package__ = "middleware"
-import middleware.utils as utils
 
 lemmatizer = WordNetLemmatizer()
 
@@ -77,8 +70,19 @@ def measure_scores(corpus,query):
                 scores[docID] = float(tfidf)
     return scores
 
+def rank_scores(scores):
+    res = []
+    sorted_ranking = {k: v for k, v in sorted(scores.items(), key=lambda item: item[1], reverse=True)}
+    for k, v in sorted_ranking.items():
+        temp = [k,v]
+        res.append(temp)
+    return res[:50]
 
-def calculate_ranking(scores):
+def rank_scores_return_id(scores, relevantRanked):
+    if len(relevantRanked.items()) != 0:
+        for k, v in relevantRanked.items():
+            scores[k] = v
+            
     sorted_ranking = {k: v for k, v in sorted(scores.items(), key=lambda item: item[1], reverse=True)}
     ids = []
     for k, v in sorted_ranking.items():
@@ -86,9 +90,11 @@ def calculate_ranking(scores):
     return ids
 
 def main(corpus,query,globalexpansion):
-
     query_list = process_query(corpus,query, globalexpansion)
-    scores = measure_scores(corpus,query_list)
-    ids_ranking = calculate_ranking(scores)
+    measureScores = measure_scores(corpus,query_list)
+    rankedScores = rank_scores(measureScores)
+    newRanking = relevance.local_expansion(corpus, query, rankedScores)
+    ids_ranking = rank_scores_return_id(measureScores, newRanking)
+    print("Retreiving documents.")
     return utils.retrieve_documents(corpus,ids_ranking[:15])
 
