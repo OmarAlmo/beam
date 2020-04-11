@@ -8,9 +8,9 @@ import middleware.utils as utils
 
 import numpy as np
 
-ALPHA, BETA, GAMMA = 0.9, 0.75, -0.1 # Textbook  notes recomended values
+BETA, GAMMA = 0.75, 0.001 
 
-def local_expansion(corpus, query, rankedDocIDs): 
+def local_expansion(corpus, query, scores): 
     '''
     Input: query, unranked query scores, relevant docs, nrevelent docs
     output: ranked documents with relevant
@@ -19,6 +19,16 @@ def local_expansion(corpus, query, rankedDocIDs):
     '''
     if len(utils.RELEVANT_DOCS.items()) == 0 and len(utils.NRELEVANT_DOCS.items()) == 0:
         return {}
+
+    # convert scores to list 
+    rankedDocIDs = []
+    i = 0
+    sorted_ranking = {k: v for k, v in sorted(scores.items(), key=lambda item: item[1], reverse=True)}
+    for k, v in sorted_ranking.items():
+        if i == 50: break
+        temp = [k,v]
+        rankedDocIDs.append(temp)
+        i+=1
 
     # Step 1: genearte matrix of query words and frequecy in each ranked doc
     # {docID:[0,1,0]} docID and query vector
@@ -36,8 +46,7 @@ def local_expansion(corpus, query, rankedDocIDs):
             step1[dID[0]].append(wordCount)
 
     # clean releven/nrelevent docs to query
-    r = {}
-    nr = {}
+    r, nr = {}, {}
     for word in query.split():
         for q in utils.RELEVANT_DOCS:
             if word in q:
@@ -69,8 +78,6 @@ def local_expansion(corpus, query, rankedDocIDs):
     for u in unrankedDoc:
         del step1[u]
     
-    print("S1", step1)
-    print("S2", step2)
     print("Calcualting new ranking scores with rocchio")
     scores = {}
     for word in queryList:
@@ -82,7 +89,7 @@ def local_expansion(corpus, query, rankedDocIDs):
             scores[docID] = 0.0
             docTF = list(v)[i]
             rocchio = list(step2.get(docID))[i]
-            s = idf * docTF * rocchio
+            s = idf  * rocchio
             if s < 0: s = 0
             scores[docID] += s
             i+=1
