@@ -5,7 +5,8 @@ if __name__ == "__main__" and __package__ is None:
 
     path.append(dir(path[0]))
     __package__ = "middleware"
-import middleware.utils as utils
+from middleware import utils 
+from middleware import wildcard_processing
 
 import csv, re
 import pandas as pd
@@ -26,8 +27,7 @@ PUNCUATIONS = [',', '[', ']', '']
 INDEX_REGEX = r'(\[\d+, \d+\])'
 lemmatizer = WordNetLemmatizer()
 
-LEMMATIZE = True
-NORMALIZE = True
+LEMMATIZE, NORMALIZE = True, True
 
 
 def infix_to_postfix(query):
@@ -79,34 +79,17 @@ def process_postfix(corpus,postfix, globalexpansion):
     return output
 
 def get_docs_ids(corpus,word):
-    if corpus == 'uottawa':
-        df = pd.read_csv("./uottawa_dictionary.csv", header=0)
-    else:
-        df = pd.read_csv("./reuters_dictionary.csv", header=0)
-
-    wildcard = False
-
-    if '*' in word:
-        wildcard = True
-
-
     if LEMMATIZE:
         word = lemmatizer.lemmatize(word)
     if NORMALIZE:
         word = word.lower()
 
+    if '*' in word: word = wildcard_processing.most_prob_term(corpus, word)
+
     output = []
-
-    if wildcard:
-        regx = re.compile(wildcard_to_regex(word))
-        query = "re.match(regx, df.iloc[i]['Term'])"
-        pass
-    else:
-        row = utils.get_term_docIDSeq(corpus, word)
-
-        for i in row:
-            output.append(i[0])
-
+    row = utils.get_term_docIDSeq(corpus, word)
+    for i in row:
+        output.append(i[0])
     return output
 
 
@@ -157,28 +140,20 @@ def boolean_retrieval(corpus,a, b, op, globalexpansion):
 
     return res
 
-def wildcard_to_regex(wildcard_word):
-    w = list(wildcard_word)
-    out = ""
-    for c in w:
-        if c == '*':
-            c = '(.' + c + ')'
-        out += c
-    return out
-
 
 def main(corpus, query, globalexpansion, topic):
 
     if len(query.split()) < 2:
         ids = get_docs_ids(corpus,query)
         documents = utils.retrieve_documents(corpus,ids[:15])
-        
+        return documents
     else:
         postfixquery = infix_to_postfix(query)
         ids = process_postfix(corpus,postfixquery,globalexpansion)
         if corpus == 'reuters': filteredIDs = utils.filter_documents_topic(ids, topic, 'boolean')
         else: filteredIDs = ids
         documents = utils.retrieve_documents(corpus,filteredIDs[:15])
+        print(documents)
         if documents == []:
             return [["No documents with that query."]]
     return documents
