@@ -8,16 +8,12 @@ if __name__ == "__main__" and __package__ is None:
 from middleware import utils 
 from middleware import relevance
 
-import csv
-import pandas as pd
-import math
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import difflib
 import  collections
-import re
 
 lemmatizer = WordNetLemmatizer()
 
@@ -57,7 +53,10 @@ def process_query(corpus, query, globalexpansion):
             output.add(lemmatizer.lemmatize(word.lower()))
     return list(output)
 
-def measure_scores(corpus,query):
+def measure_scores(corpus,query, topic):
+    '''
+    retreive docIDs and tfidf then if reuters remove unwanted docs by topic selected
+    '''
     scores = collections.defaultdict(list)
     for term in query:
         row = utils.get_term_docIDSeq(corpus,term)
@@ -68,33 +67,26 @@ def measure_scores(corpus,query):
                 scores[docID] += float(tfidf)
             else:
                 scores[docID] = float(tfidf)
-    return scores
+    if corpus == 'reuters':
+        return utils.filter_documents_topic(scores, topic, 'vsm')
+    else:
+        return scores
 
-def rank_scores(scores):
-    res = []
-    sorted_ranking = {k: v for k, v in sorted(scores.items(), key=lambda item: item[1], reverse=True)}
-    for k, v in sorted_ranking.items():
-        temp = [k,v]
-        res.append(temp)
-    return res[:50]
-
-def rank_scores_return_id(scores, relevantRanked):
+def rerank_scores_return_id(scores, relevantRanked):
     if len(relevantRanked.items()) != 0:
         for k, v in relevantRanked.items():
             scores[k] = v
-            
+
     sorted_ranking = {k: v for k, v in sorted(scores.items(), key=lambda item: item[1], reverse=True)}
     ids = []
     for k, v in sorted_ranking.items():
         ids.append(k)
     return ids
 
-def main(corpus,query,globalexpansion):
+def main(corpus,query,globalexpansion, topic):
     query_list = process_query(corpus,query, globalexpansion)
-    measureScores = measure_scores(corpus,query_list)
-    rankedScores = rank_scores(measureScores)
-    newRanking = relevance.local_expansion(corpus, query, rankedScores)
-    ids_ranking = rank_scores_return_id(measureScores, newRanking)
+    measureScores = measure_scores(corpus,query_list, topic)
+    newRanking = relevance.local_expansion(corpus, query, measureScores)
+    ids_ranking = rerank_scores_return_id(measureScores, newRanking)
     print("Retreiving documents.")
     return utils.retrieve_documents(corpus,ids_ranking[:15])
-

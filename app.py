@@ -20,6 +20,9 @@ def handle_data():
     corpus = request.form['corpus']
     globalexpansion = request.form.get('globalexpansion')
 
+    if corpus == 'reuters': topic = request.form['topicDropdown']
+    else: topic = 'All'
+
     try: models.boolean.LEMMATIZE = request.form.getlist("lemmatization")[0]
     except: pass
 
@@ -34,7 +37,7 @@ def handle_data():
                                corpus=corpus)
 
     elif model == 'boolean':
-        res = models.boolean.main(corpus,query, globalexpansion)
+        res = models.boolean.main(corpus,query, globalexpansion, topic)
 
         # Reset settings for next query
         models.boolean.LEMMATIZE = True
@@ -47,7 +50,7 @@ def handle_data():
                                 corpus=corpus)
 
     else:
-        res = models.vsm.main(corpus, query, globalexpansion)
+        res = models.vsm.main(corpus, query, globalexpansion, topic)
         return render_template('index.html',
                                flag=True,
                                res=res,

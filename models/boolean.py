@@ -1,3 +1,4 @@
+
 if __name__ == "__main__" and __package__ is None:
     from sys import path
     from os.path import dirname as dir
@@ -156,8 +157,6 @@ def boolean_retrieval(corpus,a, b, op, globalexpansion):
 
     return res
 
-boolean_retrieval('reuters', 'operating', 'system', 'AND', True)
-
 def wildcard_to_regex(wildcard_word):
     w = list(wildcard_word)
     out = ""
@@ -168,7 +167,7 @@ def wildcard_to_regex(wildcard_word):
     return out
 
 
-def main(corpus, query, globalexpansion):
+def main(corpus, query, globalexpansion, topic):
 
     if len(query.split()) < 2:
         ids = get_docs_ids(corpus,query)
@@ -177,7 +176,9 @@ def main(corpus, query, globalexpansion):
     else:
         postfixquery = infix_to_postfix(query)
         ids = process_postfix(corpus,postfixquery,globalexpansion)
-        documents = utils.retrieve_documents(corpus,ids[:15])
+        if corpus == 'reuters': filteredIDs = utils.filter_documents_topic(ids, topic, 'boolean')
+        else: filteredIDs = ids
+        documents = utils.retrieve_documents(corpus,filteredIDs[:15])
         if documents == []:
             return [["No documents with that query."]]
     return documents

@@ -37,7 +37,6 @@ def retrieve_documents(corpus, id_list):
             output.append(tmp)
     return output
 
-
 def get_document_content(corpus, docID):
     if corpus == 'uottawa':
         df = pd.read_csv('./uottawa_index.csv', header=0, index_col=0)
@@ -152,3 +151,23 @@ def get_synonym(term):
     res = list(dict.fromkeys(res))
     res.remove(term)
     return res
+
+
+def filter_documents_topic(ids,topic, model):
+    if topic == 'All':
+        return ids
+    
+    df = pd.read_csv('./reuters_index.csv', index_col=0)
+    if model == 'vsm':
+        res = {}
+        i = 0;
+        for k, v in ids.items():
+            if df.iat[int(k),1] == topic:
+                res[k] = v
+        return res
+    else:
+        res = []
+        for i in ids:
+            if df.iat[int(i),1] == topic:
+                res.append(i)
+        return res

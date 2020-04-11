@@ -5,8 +5,8 @@
     <title>Beam Search</title>
     <meta charset="utf-8" />
 
-    <!-- AJAX -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <!-- JQUERY -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
     <!-- UIkit CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.3.7/dist/css/uikit.min.css" />
@@ -14,6 +14,7 @@
     <!-- UIkit JS -->
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.3.7/dist/js/uikit.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.3.7/dist/js/uikit-icons.min.js"></script>
+
     <!-- relevance script -->
     <script src="./../static/js/relevance.js"></script>
 
@@ -49,7 +50,44 @@
                 <input type="radio" name="corpus" value="reuters" checked> Reuters<br>
                 <input type="radio" name="corpus" value="uottawa"> uOttawa Courses<br>
             </div>
-            <input type="text" name="query" size="55" placeholder='Search...' value="{{query}}"><br>
+
+            <input type="text" name="query" size="55" placeholder='Search...' value="{{query}}">
+            
+            <select id='topicDropdown' name='topicDropdown'>
+                <option>All</option>
+                <option>wpi</option>
+                <option>earn</option>
+                <option>cotton</option>
+                <option>acq</option>
+                <option>retail</option>
+                <option>trade</option>
+                <option>money-fx</option>
+                <option>crude</option>
+                <option>sugar</option>
+                <option>veg-oil</option>
+                <option>jobs</option>
+                <option>bop</option>
+                <option>ship</option>
+                <option>pet-chem</option>
+                <option>gold</option>
+                <option>gnp</option>
+                <option>reserves</option>
+                <option>tin</option>
+                <option>cpi</option>
+                <option>ipi</option>
+                <option>iron-steel</option>
+                <option>interest</option>
+                <option>alum</option>
+                <option>money-supply</option>
+                <option>gas</option>
+                <option>rubber</option>
+                <option>copper</option>
+                <option>cocoa</option>
+                <option>grain</option>
+                <option>orange</option>
+                <option>nickel</option>
+                <option>inventories</option>
+            </select><br>
 
             <input type="radio" name="model" value="vsm" checked> VSM<br>
             <input type="radio" name="model" value="boolean"> Boolean<br>
@@ -70,7 +108,7 @@
                 </center>
             </details>
             <br>
-            <input name='search-button' type='submit' value='search' /><br>
+            <input name='search-button' type='submit' class="uk-button uk-button-default" value='search' /><br>
         </form>
     </center>
 
@@ -78,15 +116,29 @@
     {%if corpus == 'uottawa'%}
         {% set docNumber = namespace(value=1) %}
         {% for i in res %}
-        {{docNumber.value}}
+            {{docNumber.value}}
+            {%set title = i[0]%}
+            {%set desc = i[1]%}
+            {%set docID = i[2]%}
         <div class="uk-card uk-card-hover uk-card-body">
             
-            <h3>{{i[0]}} </h3>            
+            <h3>{{title}} </h3>            
             <details>
                 <summary>Course details</summary>  
-                <h5>{{i[1]}} </h5>
+                <h5>{{desc}} </h5>
             </details> 
-            
+            {% if model == 'vsm' %}
+                <form id="relevanceForm{{docNumber.value}}">
+                    <button onclick="processRelevance('relevant','{{docNumber.value}}', '{{docID}}', '{{query}}')" type="submit" class="uk-button uk-button-primary uk-position-small" 
+                            id="relev{{docNumber.value}}" value="relevant">Relevant</button>
+                    <button onclick="processRelevance('notrelevant','{{docNumber.value}}', '{{docID}}', '{{query}}')" type="submit" class="uk-button uk-button-danger uk-position-small" 
+                            id="relev{{docNumber.value}}" value="notrelevant">Not Relevant</button>
+                </form>
+                <div id="successAlert{{docNumber.value}}" class="uk-alert-success" uk-alert style="display:none;">
+                    <a class="uk-alert-close" uk-close></a>
+                    <p>Relevance recorded.</p>
+                </div>
+             {% endif %}
         </div>  
         {% set docNumber.value = docNumber.value + 1 %}
         <hr>
@@ -117,8 +169,10 @@
     
         {% if model == 'vsm' %}
         <form id="relevanceForm{{docNumber.value}}">
-            <button onclick="processRelevance('relevant','{{docNumber.value}}', '{{docID}}', '{{query}}')" type="submit" class="uk-button uk-button-primary uk-position-small" id="relev{{docNumber.value}}" value="relevant">Relevant</button>
-            <button onclick="processRelevance('notrelevant','{{docNumber.value}}', '{{docID}}', '{{query}}')" type="submit" class="uk-button uk-button-danger uk-position-small" id="relev{{docNumber.value}}" value="notrelevant">Not Relevant</button>
+            <button onclick="processRelevance('relevant','{{docNumber.value}}', '{{docID}}', '{{query}}')" type="submit" class="uk-button uk-button-primary uk-position-small" 
+                    id="relev{{docNumber.value}}" value="relevant">Relevant</button>
+            <button onclick="processRelevance('notrelevant','{{docNumber.value}}', '{{docID}}', '{{query}}')" type="submit" class="uk-button uk-button-danger uk-position-small" 
+                    id="relev{{docNumber.value}}" value="notrelevant">Not Relevant</button>
         </form>
         <div id="successAlert{{docNumber.value}}" class="uk-alert-success" uk-alert style="display:none;">
             <a class="uk-alert-close" uk-close></a>
@@ -129,6 +183,20 @@
         {% set docNumber.value = docNumber.value + 1 %}
     {% endfor %}
     {% endif %}
+
+
+<!-- Reuters topic -->
+<script>
+    $("input[name='corpus']").on('change', function(){
+        // alert(this.value)
+        if (this.value != 'reuters'){
+            $("#topicDropdown").attr("disabled", true);
+        } else {
+            $("#topicDropdown").attr("disabled", false);
+        }
+    });
+
+</script>
 
 </body>
 
