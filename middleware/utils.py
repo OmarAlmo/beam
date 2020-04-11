@@ -64,8 +64,8 @@ def get_term_docIDSeq(corpus, term):
     else:
         df = pd.read_csv('./reuters_dictionary.csv', index_col=0)
 
-    for i in range(0, df.shape[0] - 1):
-        if term == df.iloc[i]['Term']:
+    for i in range(df.shape[0]):
+        if term == df.iat[i,0]:
             row = df.iat[i, 1]
             p = re.compile(TFIDF_INDEX_REGEX)
             index_list = p.findall(row)
