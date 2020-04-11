@@ -21,7 +21,7 @@ reutersDir = os.getenv('reuters_dir')
 
 df = pd.read_csv('./reuters_index.csv', index_col=0)
 
-TEST_SET = []
+
 TRAINING_SET = []
 TRAINING_TOPICS = []
 
@@ -45,14 +45,12 @@ def set_training_test_sets(categorizedTopics):
     for i in range(df.shape[0]):
         if df.iat[i,1] in categorizedTopics: 
             TRAINING_SET.append(df.iloc[[i]])
-        else:
-            TEST_SET.append(df.iloc[[i]])
 
 
 def vectorize_and_train(topicsSet):
     X_arr, y_arr = [], []
     for doc in TRAINING_SET:
-        text = str(doc["body"].values[0])
+        text = str(doc["title"].values[0]) + str(doc["body"].values[0])
         topic = doc["topics"].values[0]
 
         X_arr.append(text)
@@ -69,18 +67,18 @@ def vectorize_and_train(topicsSet):
 
     # predict topic of testing
     for i in range(df.shape[0]):
-        if pd.isna(df.iat[i,1]):
-            title = df.iat[i,0]
-            body = df.iat[i,4]
-            text = [body]
+        title = df.iat[i,0]
+        body = df.iat[i,4]
+        text = [title + body]
 
-            textVector = vectorizer.transform(text)
-            predict = knn.predict(textVector)
-            
-            for k, v in topicsSet.items():
-                if predict == v:
-                    df.iat[i,1] = k
-    df.to_csv('updated_retuers_index.csv')
+        textVector = vectorizer.transform(text)
+        predict = knn.predict(textVector)
+        
+        for k, v in topicsSet.items():
+            if predict == v:
+                print(i, k)
+                df.iat[i,1] = k
+    df.to_csv('reuters_index.csv')
 
 
 
