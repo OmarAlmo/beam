@@ -254,3 +254,30 @@ def add_tfidf():
         counter += 1
         print(s)
     tfidf_file.close()
+
+
+
+def generate_letter_bigram():
+    df = pd.read_csv('./reuters_dictionary.csv')
+    output = {}
+    for i in range(df.shape[0]):
+        termID = df.iat[i,0]
+        term = '$'+str(df.iat[i,1])+'$'
+
+        # letter gram 
+        tmp = list(nltk.trigrams(term))
+        
+        for g in tmp:
+            gram = "".join(g)
+            try: output[gram] += [termID]
+            except: output[gram] = [termID]
+    
+    letterGramFile = open('./reuters_letter_gram.csv', 'w')
+    letterGram = csv.writer(letterGramFile)
+    letterGram.writerow(['id', 'gram', 'termID'])
+    id = 0
+    for k, v in output.items():
+        letterGram.writerow([id, k, v])
+        id += 1
+
+    letterGramFile.close()

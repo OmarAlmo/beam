@@ -211,8 +211,28 @@ def add_tfidf():
 		
 	tfidf_file.close()
 
-def main():
-	build_index_csv()
-	dictionary = build_dictionary()
-	export_dictionary_csv(dictionary)
-	add_tfidf()
+def generate_letter_bigram():
+    df = pd.read_csv('./uottawa_dictionary.csv')
+    output = {}
+    for i in range(df.shape[0]):
+        termID = df.iat[i,0]
+        term = '$'+str(df.iat[i,1])+'$'
+
+        # letter gram 
+        tmp = list(nltk.trigrams(term))
+        
+        for g in tmp:
+            gram = "".join(g)
+            try: output[gram] += [termID]
+            except: output[gram] = [termID]
+    
+    letterGramFile = open('./uottawa_letter_gram.csv', 'w')
+    letterGram = csv.writer(letterGramFile)
+    letterGram.writerow(['id', 'gram', 'termID'])
+    id = 0
+    for k, v in output.items():
+        letterGram.writerow([id, k, v])
+        id += 1
+
+    letterGramFile.close()
+generate_letter_bigram()
