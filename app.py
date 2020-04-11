@@ -34,6 +34,8 @@ def handle_data():
     try: models.boolean.NORMALIZE = request.form.getlist("normalization")[0]
     except: pass
 
+    noDoc=False
+
     if model == 'corpus_acess':
         query_list = query.split(',')
         return render_template('index.html',
@@ -44,13 +46,14 @@ def handle_data():
 
     elif model == 'boolean':
         res = models.boolean.main(corpus,query, globalexpansion, topic)
-
+        if type(res) == str: noDoc=True
         # Reset settings for next query
         models.boolean.LEMMATIZE = True
         models.boolean.NORMALIZE = True
         return render_template('index.html',
                                 flag=True,
                                 topics=TOPICS_LIST,
+                                noDoc=noDoc,
                                 res=res, 
                                 model=model,
                                 query=query,

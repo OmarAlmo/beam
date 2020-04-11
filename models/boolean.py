@@ -83,9 +83,9 @@ def get_docs_ids(corpus,word):
         word = lemmatizer.lemmatize(word)
     if NORMALIZE:
         word = word.lower()
-
+    
     if '*' in word: word = wildcard_processing.most_prob_term(corpus, word)
-
+    
     output = []
     row = utils.get_term_docIDSeq(corpus, word)
     for i in row:
@@ -136,7 +136,7 @@ def boolean_retrieval(corpus,a, b, op, globalexpansion):
     elif op == 'OR':
         res = list(set(listA).union(set(listB)))
     else:  # op == 'AND_NOT':
-        res = list(set(listA) - set(listB))
+        res = list(set(listB) - set(listA))
 
     return res
 
@@ -153,7 +153,6 @@ def main(corpus, query, globalexpansion, topic):
         if corpus == 'reuters': filteredIDs = utils.filter_documents_topic(ids, topic, 'boolean')
         else: filteredIDs = ids
         documents = utils.retrieve_documents(corpus,filteredIDs[:15])
-        print(documents)
         if documents == []:
-            return [["No documents with that query."]]
+            return ("No documents with that query.")
     return documents

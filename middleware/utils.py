@@ -154,7 +154,7 @@ def get_synonym(term):
 
 
 def filter_documents_topic(ids,topic, model):
-    if topic == 'All':
+    if topic == 'all':
         return ids
     
     df = pd.read_csv('./reuters_index.csv', index_col=0)
