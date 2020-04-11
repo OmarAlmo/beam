@@ -52,7 +52,7 @@ def set_training_test_sets(categorizedTopics):
 def vectorize_and_train(topicsSet):
     X_arr, y_arr = [], []
     for doc in TRAINING_SET:
-        text = str(doc['title'].values[0]) + str(doc["body"].values[0])
+        text = str(doc["body"].values[0])
         topic = doc["topics"].values[0]
 
         X_arr.append(text)
@@ -67,12 +67,12 @@ def vectorize_and_train(topicsSet):
     knn.fit(X_train, y_train)
 
 
-    predict topic of testing
+    # predict topic of testing
     for i in range(df.shape[0]):
         if pd.isna(df.iat[i,1]):
             title = df.iat[i,0]
             body = df.iat[i,4]
-            text = [title + body]
+            text = [body]
 
             textVector = vectorizer.transform(text)
             predict = knn.predict(textVector)
@@ -84,6 +84,6 @@ def vectorize_and_train(topicsSet):
 
 
 
-# topicsSet = get_topics()
-# set_training_test_sets(topicsSet)
-# vectorize_and_train(topicsSet)
+topicsSet = get_topics()
+set_training_test_sets(topicsSet)
+vectorize_and_train(topicsSet)
