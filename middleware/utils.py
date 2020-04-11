@@ -18,16 +18,13 @@ REUTERS_NUMBER_DOCUMENTS = 19042 #pd.read_csv('./../reuters_index.csv').shape[0]
 RELEVANT_DOCS = collections.defaultdict(list)
 NRELEVANT_DOCS = collections.defaultdict(list)
 
-# RELEVANT_DOCS = {'canada': ['16135']}
-# NRELEVANT_DOCS = {'canada': ['4065']}
-
 def retrieve_documents(corpus, id_list):
     output = []
     if corpus == 'uottawa':
-        df = pd.read_csv('./uottawa_index.csv', index_col=0)
+        df = pd.read_csv('./uottawa_index.csv')
         for i in id_list:
-            # [0title, 1desc]
-            tmp = [df.iat[int(i), 0], df.iat[int(i), 1]]
+            # [0title, 1desc, 2docID]
+            tmp = [df.iat[int(i), 1], df.iat[int(i), 2], df.iat[int(i), 0]]
             output.append(tmp)
     else:
         df = pd.read_csv('./reuters_index.csv')
@@ -61,8 +58,6 @@ def get_document_content(corpus, docID):
         title = df.iat[docID, 0]
         body = df.iat[docID, 4]
         return title + body
-        # return df.iat[docID, 4]
-
 
 def get_term_docIDSeq(corpus, term):
     if corpus == 'uottawa':
