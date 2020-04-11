@@ -116,42 +116,46 @@
    
     <!-- reuters -->
     {%else%}
-    {% set docNumber = namespace(value=1) %}
-    {% for i in res %}
-        {%set title = i[0]%}
-        {%set topics = i[1]%}
-        {%set author = i[2]%}
-        {%set date = i[3]%}
-        {%set body = i[4]%}
-        {%set docID = i[5]%}
-        
-    
-        <div class="uk-card uk-card-hover uk-card-body">
-            {{docNumber.value}}
-            <h3>{{title}}</h3>
-            <p>{{body[:200]}}...</p>
-            <details>
-                <summary>Full Article</summary>
-                <h5>Topics: {{topics}}<br> Author: {{author}}<br>Date: {{date}}</h5>
-                <p>{{body}}</p>
-            </details>
-        </div>   
-    
-        {% if model == 'vsm' %}
-        <form id="relevanceForm{{docNumber.value}}">
-            <button onclick="processRelevance('relevant','{{docNumber.value}}', '{{docID}}', '{{query}}')" type="submit" class="uk-button uk-button-primary uk-position-small" 
-                    id="relev{{docNumber.value}}" value="relevant">Relevant</button>
-            <button onclick="processRelevance('notrelevant','{{docNumber.value}}', '{{docID}}', '{{query}}')" type="submit" class="uk-button uk-button-danger uk-position-small" 
-                    id="relev{{docNumber.value}}" value="notrelevant">Not Relevant</button>
-        </form>
-        <div id="successAlert{{docNumber.value}}" class="uk-alert-success" uk-alert style="display:none;">
-            <a class="uk-alert-close" uk-close></a>
-            <p>Relevance recorded.</p>
-        </div>
+        {%if noDoc%}
+            <h3>{{res}}</h3>
+        {%else%}
+            {% set docNumber = namespace(value=1) %}
+            {% for i in res %}
+                {%set title = i[0]%}
+                {%set topics = i[1]%}
+                {%set author = i[2]%}
+                {%set date = i[3]%}
+                {%set body = i[4]%}
+                {%set docID = i[5]%}
+                
+            
+                <div class="uk-card uk-card-hover uk-card-body">
+                    {{docNumber.value}}
+                    <h3>{{title}}</h3>
+                    <p>{{body[:200]}}...</p>
+                    <details>
+                        <summary>Full Article</summary>
+                        <h5>Topics: {{topics}}<br> Author: {{author}}<br>Date: {{date}}</h5>
+                        <p>{{body}}</p>
+                    </details>
+                </div>   
+            
+                {% if model == 'vsm' %}
+                <form id="relevanceForm{{docNumber.value}}">
+                    <button onclick="processRelevance('relevant','{{docNumber.value}}', '{{docID}}', '{{query}}')" type="submit" class="uk-button uk-button-primary uk-position-small" 
+                            id="relev{{docNumber.value}}" value="relevant">Relevant</button>
+                    <button onclick="processRelevance('notrelevant','{{docNumber.value}}', '{{docID}}', '{{query}}')" type="submit" class="uk-button uk-button-danger uk-position-small" 
+                            id="relev{{docNumber.value}}" value="notrelevant">Not Relevant</button>
+                </form>
+                <div id="successAlert{{docNumber.value}}" class="uk-alert-success" uk-alert style="display:none;">
+                    <a class="uk-alert-close" uk-close></a>
+                    <p>Relevance recorded.</p>
+                </div>
+                {% endif %}
+                <hr>
+                {% set docNumber.value = docNumber.value + 1 %}
+            {% endfor %}
         {% endif %}
-        <hr>
-        {% set docNumber.value = docNumber.value + 1 %}
-    {% endfor %}
     {% endif %}
 
 

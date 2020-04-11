@@ -13,6 +13,7 @@ import pandas as pd
 import numpy as np
 import csv
 from difflib import SequenceMatcher
+from itertools import islice 
 
 
 def process_wildcard(corpus, term):
@@ -52,6 +53,12 @@ def most_prob_term(corpus, term):
     
 
     sortedScores = {k: v for k, v in sorted(scores.items(), key=lambda item: item[1], reverse=True)}
+
+    for k in sortedScores.keys():
+        w = df.iat[int(k), 0]
+        if len(w) > len(term):
+            return w
+
     newTerm = df.iat[int(next(iter(sortedScores))), 0]
     return newTerm
     
