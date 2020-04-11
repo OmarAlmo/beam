@@ -6,12 +6,17 @@ from middleware.utils import retrieve_documents, RELEVANT_DOCS, NRELEVANT_DOCS
 
 app = Flask(__name__)
 
-# RELEVANT_DOCS = collections.defaultdict(list)
-# NRELEVANT_DOCS = collections.defaultdict(list)
+TOPICS_LIST = ['all', 'lei', 'earn', 'acq', 'interest', 'trade', 'crude', 'carcass', 'gnp', 'veg-oil',
+ 'jobs', 'money-fx', 'grain', 'alum', 'bop', 'sugar', 'ship', 'heat', 'cotton',
+ 'gold', 'coffee', 'reserves', 'cpi', 'tin', 'cocoa', 'retail', 'money-supply',
+ 'pet-chem', 'nat-gas', 'iron-steel', 'housing', 'copper', 'jet', 'rubber',
+ 'orange', 'wpi', 'ipi', 'nickel', 'potato', 'instal-debt', 'gas', 'fuel',
+ 'oilseed', 'zinc', 'rand', 'lumber', 'silver', 'lead', 'livestock',
+ 'strategic-metal', 'yen', 'income', 'meal-feed', 'tea', 'platinum', 'propane']
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', topics=TOPICS_LIST)
 
 @app.route('/', methods=['POST'])
 def handle_data():
@@ -32,6 +37,7 @@ def handle_data():
     if model == 'corpus_acess':
         query_list = query.split(',')
         return render_template('index.html',
+                               topics=TOPICS_LIST,
                                res=retrieve_documents(corpus, query_list),
                                query=query,
                                corpus=corpus)
@@ -44,6 +50,7 @@ def handle_data():
         models.boolean.NORMALIZE = True
         return render_template('index.html',
                                 flag=True,
+                                topics=TOPICS_LIST,
                                 res=res, 
                                 model=model,
                                 query=query,
@@ -53,6 +60,7 @@ def handle_data():
         res = models.vsm.main(corpus, query, globalexpansion, topic)
         return render_template('index.html',
                                flag=True,
+                               topics=TOPICS_LIST,
                                res=res,
                                model=model,
                                query=query,
