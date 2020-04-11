@@ -56,7 +56,7 @@ def valid_term(term):
 def build_index():
     retuersIndexFile = open('./reuters_index.csv', 'w')
     retuersIndex = csv.writer(retuersIndexFile)
-    retuersIndex.writerow(['docID', 'title', 'topics','author', 'date', 'body'])
+    retuersIndex.writerow(['docID', 'title', 'topics','author', 'date', 'body', 'topics'])
     docID = 0
     for file in glob.glob(os.path.join(reutersDir, '*.sgm')):
         print(file)
@@ -95,7 +95,8 @@ def build_index():
                 retuersIndex.writerow(
                     [docID, title, topics, author, date, body])
                 docID += 1
-
+    
+    f.close()
     retuersIndexFile.close()
 
 def bigram_helper(term):
@@ -138,7 +139,6 @@ def build_bigram():
             id += 1
 
     reutersBigramFile.close()
-build_bigram()
 
 def reduce_bigram():
     df = pd.read_csv('./reuters_bigram.csv', index_col=0, header=0)
@@ -149,7 +149,6 @@ def reduce_bigram():
             df.drop(df.index[i])
             print("dropeed")
     df.to_csv('reuters_bigram_2.csv')
-# reduce_bigram()
 
 def build_dictionary():
     index = pd.read_csv('./reuters_index.csv', header=0)
@@ -255,3 +254,30 @@ def add_tfidf():
         counter += 1
         print(s)
     tfidf_file.close()
+
+
+
+def generate_letter_bigram():
+    df = pd.read_csv('./reuters_dictionary.csv')
+    output = {}
+    for i in range(df.shape[0]):
+        termID = df.iat[i,0]
+        term = '$'+str(df.iat[i,1])+'$'
+
+        # letter gram 
+        tmp = list(nltk.trigrams(term))
+        
+        for g in tmp:
+            gram = "".join(g)
+            try: output[gram] += [termID]
+            except: output[gram] = [termID]
+    
+    letterGramFile = open('./reuters_letter_gram.csv', 'w')
+    letterGram = csv.writer(letterGramFile)
+    letterGram.writerow(['id', 'gram', 'termID'])
+    id = 0
+    for k, v in output.items():
+        letterGram.writerow([id, k, v])
+        id += 1
+
+    letterGramFile.close()

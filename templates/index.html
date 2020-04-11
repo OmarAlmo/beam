@@ -5,6 +5,9 @@
     <title>Beam Search</title>
     <meta charset="utf-8" />
 
+    <!-- JQUERY -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
     <!-- UIkit CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.3.7/dist/css/uikit.min.css" />
 
@@ -12,11 +15,25 @@
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.3.7/dist/js/uikit.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.3.7/dist/js/uikit-icons.min.js"></script>
 
+    <!-- relevance script -->
+    <script src="./../static/js/relevance.js"></script>
+
     <style>
         body {
             width: 50%;
             margin: auto;
         }
+        .column {
+            float: left;
+            width: 50%;
+        }
+        
+        .row:after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
     </style>
 </head>
 
@@ -28,72 +45,129 @@
         </header>
 
         <!-- Search Form -->
-        <form method="POST" action="{{ url_for('handle_data') }}">
-            <input type="radio" name="corpus" value="reuters" checked> Reuters<br>
-            <input type="radio" name="corpus" value="uottawa"> uOttawa Courses<br>
+        <form  method="POST" action="{{ url_for('handle_data') }}">
+            <div>
+                <input type="radio" name="corpus" value="reuters" checked> Reuters<br>
+                <input type="radio" name="corpus" value="uottawa"> uOttawa Courses<br>
+            </div>
 
-            <input type="text" name="query" size="55" placeholder='search...'><br>
+            <input type="text" name="query" size="55" placeholder='Search...' value="{{query}}">
+            
+            <select id='topicDropdown' name='topicDropdown'>
+                {% for i in topics %}
+                    <option value="{{i}}">{{i}}</option>
+                {% endfor %}
+            </select><br>
 
-            <input type="radio" name="model" value="corpus_acess" checked="checked"> Corpus Access<br>
+            <input type="radio" name="model" value="vsm" checked> VSM<br>
             <input type="radio" name="model" value="boolean"> Boolean<br>
-            <input type="radio" name="model" value="vsm"> VSM<br>
+            <input type="radio" name="model" value="corpus_acess"> Corpus Access<br>
 
             <details>
                 <summary>Advanced Options:</summary>
-                Disable lemmatization & Stemming:<input type="checkbox" name="lemmatization" value="False"><br>
-                Disable normalization:<input type="checkbox" name="normalization" value="False"> <br>
+                <center>
+                    <div class="row">
+                        <div class="column">
+                            Disable lemmatization & Stemming:<input type="checkbox" name="lemmatization" value="False"><br>
+                            Disable normalization:<input type="checkbox" name="normalization" value="False"> <br>
+                        </div>
+                        <div class="column">
+                            Enable query expansion:<input type="checkbox" name="globalexpansion" value="True"><br>
+                        </div>
+                    </div>
+                </center>
             </details>
-
-            <input name='search-button' type='submit' value='search' /><br>
-
-
+            <br>
+            <input name='search-button' type='submit' class="uk-button uk-button-default" value='search' /><br>
         </form>
     </center>
 
-    {% if query %}
-    <h5>Query: {{query}} </h5>
-    {% endif %}
-
     <br>
     {%if corpus == 'uottawa'%}
-    {% for i in res %}
-    <button class="uk-button uk-button-default uk-margin-small-right" type="button"
-        uk-toggle="target: #modal-close-default">
-        <h3>{{i[0]}} </h3>
-    </button>
-    <div id="modal-close-default" uk-modal>
-        <div class="uk-modal-dialog uk-modal-body">
-            <button class="uk-modal-close-default" type="button" uk-close></button>
-            <h3>{{i[0]}} </h3>
-            <p>{{i[1]}}</p>
-        </div>
-    </div>
-    <p>{{i[1]}}</p>
+        {% set docNumber = namespace(value=1) %}
+        {% for i in res %}
+            {{docNumber.value}}
+            {%set title = i[0]%}
+            {%set desc = i[1]%}
+            {%set docID = i[2]%}
+        <div class="uk-card uk-card-hover uk-card-body">
+            
+            <h3>{{title}} </h3>            
+            <details>
+                <summary>Course details</summary>  
+                <h5>{{desc}} </h5>
+            </details> 
+            {% if model == 'vsm' %}
+                <form id="relevanceForm{{docNumber.value}}">
+                    <button onclick="processRelevance('relevant','{{docNumber.value}}', '{{docID}}', '{{query}}')" type="submit" class="uk-button uk-button-primary uk-position-small" 
+                            id="relev{{docNumber.value}}" value="relevant">Relevant</button>
+                    <button onclick="processRelevance('notrelevant','{{docNumber.value}}', '{{docID}}', '{{query}}')" type="submit" class="uk-button uk-button-danger uk-position-small" 
+                            id="relev{{docNumber.value}}" value="notrelevant">Not Relevant</button>
+                </form>
+                <div id="successAlert{{docNumber.value}}" class="uk-alert-success" uk-alert style="display:none;">
+                    <a class="uk-alert-close" uk-close></a>
+                    <p>Relevance recorded.</p>
+                </div>
+             {% endif %}
+        </div>  
+        {% set docNumber.value = docNumber.value + 1 %}
+        <hr>
     {% endfor %}
+   
     <!-- reuters -->
     {%else%}
+    {% set docNumber = namespace(value=1) %}
     {% for i in res %}
-    <div class="uk-card uk-card-hover uk-card-body">
-    <button class="uk-button uk-button-default uk-margin-small-right" type="button"
-    uk-toggle="target: #modal-close-default">
-    <h3>{{i[0]}} </h3>
-        </button>
-        <div id="modal-close-default" uk-modal>
-            <div class="uk-modal-dialog uk-modal-body">
-                <button class="uk-modal-close-default" type="button" uk-close></button>
-                <h3>{{i[0]}} </h3>
-                <h5>Topics: {{i[1]}} </h5>
-                <h6>Author: {{i[2]}}</h6>
-                <p>Date: {{i[3]}}</p>
-                <p>{{i[4]}}</p>
-            </div>
+        {%set title = i[0]%}
+        {%set topics = i[1]%}
+        {%set author = i[2]%}
+        {%set date = i[3]%}
+        {%set body = i[4]%}
+        {%set docID = i[5]%}
+        
+    
+        <div class="uk-card uk-card-hover uk-card-body">
+            {{docNumber.value}}
+            <h3>{{title}}</h3>
+            <p>{{body[:200]}}...</p>
+            <details>
+                <summary>Full Article</summary>
+                <h5>Topics: {{topics}}<br> Author: {{author}}<br>Date: {{date}}</h5>
+                <p>{{body}}</p>
+            </details>
+        </div>   
+    
+        {% if model == 'vsm' %}
+        <form id="relevanceForm{{docNumber.value}}">
+            <button onclick="processRelevance('relevant','{{docNumber.value}}', '{{docID}}', '{{query}}')" type="submit" class="uk-button uk-button-primary uk-position-small" 
+                    id="relev{{docNumber.value}}" value="relevant">Relevant</button>
+            <button onclick="processRelevance('notrelevant','{{docNumber.value}}', '{{docID}}', '{{query}}')" type="submit" class="uk-button uk-button-danger uk-position-small" 
+                    id="relev{{docNumber.value}}" value="notrelevant">Not Relevant</button>
+        </form>
+        <div id="successAlert{{docNumber.value}}" class="uk-alert-success" uk-alert style="display:none;">
+            <a class="uk-alert-close" uk-close></a>
+            <p>Relevance recorded.</p>
         </div>
-        <p>{{i[4][:200]}}...</p>
-    </div>
-    <hr>
-
+        {% endif %}
+        <hr>
+        {% set docNumber.value = docNumber.value + 1 %}
     {% endfor %}
     {% endif %}
+
+
+<!-- Reuters topic -->
+<script>
+    $("input[name='corpus']").on('change', function(){
+        // alert(this.value)
+        if (this.value != 'reuters'){
+            $("#topicDropdown").attr("disabled", true);
+        } else {
+            $("#topicDropdown").attr("disabled", false);
+        }
+    });
+
+</script>
+
 </body>
 
 </html>
