@@ -117,6 +117,23 @@ def get_bigram(corpus,term):
         bigramList = ast.literal_eval(bigram)
         t1 = bigramList[0]
         t2 = bigramList[1]
+def get_bigramDict_by_word(corpus,keyword):
+    bigramDict={}
+    if corpus == 'uottawa':
+        df = pd.read_csv('./uottawa_bigram.csv')
+    else:
+        df = pd.read_csv('./reuters_bigram.csv')
+    
+    for i in range(0, df.shape[0]):
+        bigram = df.iat[i,1]
+        bigramList = ast.literal_eval(bigram)
+        bigram2 = df.iat[i,2]
+        bigramList2 = ast.literal_eval(bigram2)
+        t1 = bigramList[0]
+        if(t1==keyword):
+            bigramDict[bigram]=[bigramList[1],len(bigramList2)]
+    return bigramDict
+
 
 # def get_synonym(term):
 #     synonyms = set()
