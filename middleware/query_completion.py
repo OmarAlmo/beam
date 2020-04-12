@@ -29,7 +29,7 @@ def get_max_frequence(dict):
     print("max is ")
     print(maxNum)
     return maxNum
-def read_bigramgetDictionaryByword(corpus,word):
+def active_query_completion(corpus,word):
     Resultlist=[]
     todelete=None
     bigramDict=utils.get_bigramDict_by_word(corpus,word)
