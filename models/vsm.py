@@ -7,6 +7,7 @@ if __name__ == "__main__" and __package__ is None:
 
 from middleware import utils 
 from middleware import relevance
+from middleware import spelling_correction
 
 import nltk
 from nltk.corpus import stopwords
@@ -20,6 +21,9 @@ lemmatizer = WordNetLemmatizer()
 CUSTOM_STOP_WORDS = ['course', 'knowledge', 'business', 'effectively','student','constitutes','introduce','major','minor', '(', ')', ',', '"','.', ';']
 NLTK_WORDS = stopwords.words('english')
 STOP_WORDS = CUSTOM_STOP_WORDS + NLTK_WORDS
+
+
+
 
 def process_query(corpus, query, globalexpansion):
     '''
@@ -37,6 +41,9 @@ def process_query(corpus, query, globalexpansion):
         if word in STOP_WORDS:
             continue
         else:
+            
+            word = spelling_correction.check_word(corpus, word)
+
             if globalexpansion:
                 synonyms = utils.get_synonym(word)
                 print("synonym for ", word)
@@ -89,4 +96,5 @@ def main(corpus,query,globalexpansion, topic):
     newRanking = relevance.local_expansion(corpus, query, measureScores)
     ids_ranking = rerank_scores_return_id(measureScores, newRanking)
     print("Retreiving documents.")
+
     return utils.retrieve_documents(corpus,ids_ranking[:15])

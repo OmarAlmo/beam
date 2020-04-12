@@ -61,6 +61,8 @@ def handle_data():
 
     else:
         res = models.vsm.main(corpus, query, globalexpansion, topic)
+        query="".join(models.vsm.process_query(corpus, query, globalexpansion))
+        # if QUERY_MODIFIED: query=FINAL_QUERY
         return render_template('index.html',
                                flag=True,
                                topics=TOPICS_LIST,
