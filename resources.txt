@@ -1,0 +1,12 @@
+Recourse links:
+
+[1]https://stackoverflow.com/questions/11556958/sending-data-from-html-form-to-a-python-script-in-flask
+[2]https://stackoverflow.com/questions/28019543/inverted-index-given-a-list-of-document-tokens-using-python
+[3]https://www.nltk.org/api/nltk.tokenize.html
+[4]https://pypi.org/project/pythonds3/
+[5]https://www.geeksforgeeks.org/stack-set-2-infix-to-postfix/
+[6]https://runestone.academy/runestone/books/published/pythonds/BasicDS/InfixPrefixandPostfixExpressions.html
+[7]https://docs.python.org/3.8/library/stdtypes.html#set-types-set-frozenset
+[8]https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html
+[9]https://www.geeksforgeeks.org/python-convert-list-of-string-to-list-of-list/
+[10]https://weighted-levenshtein.readthedocs.io/en/master/

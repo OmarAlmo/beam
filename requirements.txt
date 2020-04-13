@@ -1,6 +1,9 @@
 nltk
 pandas
-python-Levenshtein 
+numpy
 flask
 beautifulsoup4
 html5lib
+weighted_levenshtein
+itertools
+difflib
