@@ -3,7 +3,9 @@ from flask import Flask, render_template, request, jsonify
 import models.boolean
 import models.vsm
 from middleware.utils import retrieve_documents, RELEVANT_DOCS, NRELEVANT_DOCS
-from middleware.query_completion import active_query_completion
+import middleware.query_completion as completion
+import json
+
 
 app = Flask(__name__)
 
@@ -106,10 +108,22 @@ def autocomplete():
     query = str(req[0]).split(' ')[-2]
     corpus = req[1]
 
-    res = active_query_completion(corpus, query)
+    res = completion.active_query_completion(corpus, query)
     print("QUERY SUGGESTION:", " ".join(res))
 
     return jsonify(res)
+
+
+@app.route('/')
+def get_query_completion_output():
+    globalexpansion = request.form.get('globalexpansion')
+    corpus = request.form['corpus']
+    query = request.form['query']
+    tmpquery=query
+    query="".join(models.vsm.process_query(corpus, query, globalexpansion))
+    tmpquery=tmpquery.split(" ")[-1]
+    result= completion.active_query_completion(corpus,tmpquery)
+    return result
 
 
 if __name__ == "__main__":
