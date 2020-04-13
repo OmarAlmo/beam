@@ -75,8 +75,7 @@ def build_index():
 
             try:
                 body = article.find('body').text
-                body = body.rsplit(' ',
-                                   1)[0]  # removes Reuters last word of text
+                body = body.rsplit(' ', 1)[0]  # removes Reuters last word of text
                 body = " ".join(body.split())
             except:
                 body = None
@@ -142,7 +141,6 @@ def build_bigram():
 
 def reduce_bigram():
     df = pd.read_csv('./reuters_bigram.csv', index_col=0, header=0)
-    # df = df[len(ast.literal_eval(df.docIDs)) < 5]
     for i in range(0,df.shape[0]-1):
         lenDocIDs = len(ast.literal_eval(df.iat[i,1]))
         if lenDocIDs < 5:

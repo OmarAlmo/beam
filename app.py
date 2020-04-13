@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 
 import models.boolean
 import models.vsm
 from middleware.utils import retrieve_documents, RELEVANT_DOCS, NRELEVANT_DOCS
+from middleware.query_completion import active_query_completion
 
 app = Flask(__name__)
 
@@ -97,7 +98,18 @@ def relevance():
             NRELEVANT_DOCS[q] = [docID]
     print("RELEVANT:", RELEVANT_DOCS)
     print("NRELEVANT:", NRELEVANT_DOCS)
-    return ('')
+    return ''
+
+@app.route('/autocomplete', methods=['POST'])
+def autocomplete():
+    req = request.data.decode("utf-8").split(',')
+    query = str(req[0]).split(' ')[-2]
+    corpus = req[1]
+
+    res = active_query_completion(corpus, query)
+    print("QUERY SUGGESTION:", " ".join(res))
+
+    return jsonify(res)
 
 
 if __name__ == "__main__":

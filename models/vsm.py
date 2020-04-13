@@ -100,6 +100,3 @@ def main(corpus,query,globalexpansion, topic):
     print("Retreiving documents.")
 
     return utils.retrieve_documents(corpus,ids_ranking[:15])
-
-q = "oil"
-main('reuters', q, True, 'all')

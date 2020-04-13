@@ -7,6 +7,8 @@
 
     <!-- JQUERY -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>  
 
     <!-- UIkit CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.3.7/dist/css/uikit.min.css" />
@@ -15,8 +17,9 @@
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.3.7/dist/js/uikit.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/uikit@3.3.7/dist/js/uikit-icons.min.js"></script>
 
-    <!-- relevance script -->
+    <!-- scripts -->
     <script src="./../static/js/relevance.js"></script>
+    <script src="./../static/js/qcompletion.js"></script>
 
     <style>
         html {
@@ -50,11 +53,11 @@
         <!-- Search Form -->
         <form  method="POST" action="{{ url_for('handle_data') }}">
             <div>
-                <input type="radio" name="corpus" value="reuters" checked> Reuters<br>
-                <input type="radio" name="corpus" value="uottawa"> uOttawa Courses<br>
+                <input type="radio" name="corpus" id="corpus" value="reuters" checked> Reuters<br>
+                <input type="radio" name="corpus" id="corpus" value="uottawa"> uOttawa Courses<br>
             </div>
 
-            <input type="text" name="query" size="55" placeholder='Search...' value="{{query}}">
+            <input type="text" id="searchbar" name="query" size="55" placeholder='Search...' value="{{query}}" onkeyup="showResult(this.value)">
             
             <select id='topicDropdown' name='topicDropdown'>
                 {% for i in topics %}
