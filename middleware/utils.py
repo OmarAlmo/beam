@@ -142,8 +142,8 @@ def get_synonym(term):
         sim = t1.wup_similarity(t2)
         output[t2] = sim
 
-    sortedOutput = {k: v for k, v in sorted(output.items(), key=lambda item: item[1], reverse=True)}
-    
+    sortedOutput = {key: value for (key, value) in sorted(output.items())}
+
     res = []
     for syn in sortedOutput:
         res.append(syn.name().split('.')[0])

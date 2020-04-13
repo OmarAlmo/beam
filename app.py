@@ -30,8 +30,12 @@ def handle_data():
 
     try: models.boolean.LEMMATIZE = request.form.getlist("lemmatization")[0]
     except: pass
-
     try: models.boolean.NORMALIZE = request.form.getlist("normalization")[0]
+    except: pass
+
+    try: models.vsm.LEMMATIZE = request.form.getlist("lemmatization")[0]
+    except: pass
+    try: models.vsm.NORMALIZE = request.form.getlist("normalization")[0]
     except: pass
 
     noDoc=False
@@ -61,8 +65,7 @@ def handle_data():
 
     else:
         res = models.vsm.main(corpus, query, globalexpansion, topic)
-        query="".join(models.vsm.process_query(corpus, query, globalexpansion))
-        # if QUERY_MODIFIED: query=FINAL_QUERY
+        query=" ".join(models.vsm.process_query(corpus, query, globalexpansion))
         return render_template('index.html',
                                flag=True,
                                topics=TOPICS_LIST,

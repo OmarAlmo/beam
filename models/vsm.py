@@ -23,7 +23,7 @@ NLTK_WORDS = stopwords.words('english')
 STOP_WORDS = CUSTOM_STOP_WORDS + NLTK_WORDS
 
 
-
+LEMMATIZE, NORMALIZE = True, True
 
 def process_query(corpus, query, globalexpansion):
     '''
@@ -41,8 +41,8 @@ def process_query(corpus, query, globalexpansion):
         if word in STOP_WORDS:
             continue
         else:
-            
-            word = spelling_correction.check_word(corpus, word)
+            print(word)
+            word = spelling_correction.check_word(corpus, word.strip())
 
             if globalexpansion:
                 synonyms = utils.get_synonym(word)
@@ -57,7 +57,9 @@ def process_query(corpus, query, globalexpansion):
                     print("2nd synonym: ", synonyms[1])
                 except: pass
             
-            output.add(lemmatizer.lemmatize(word.lower()))
+            if NORMALIZE: word = word.lower()
+            if LEMMATIZE: word = lemmatizer.lemmatize(word.lower())
+            output.add(word)
     return list(output)
 
 def measure_scores(corpus,query, topic):
@@ -98,3 +100,6 @@ def main(corpus,query,globalexpansion, topic):
     print("Retreiving documents.")
 
     return utils.retrieve_documents(corpus,ids_ranking[:15])
+
+q = "oil"
+main('reuters', q, True, 'all')

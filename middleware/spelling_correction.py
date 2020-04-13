@@ -31,11 +31,9 @@ def check_word(corpus, term):
         if term == df.iat[i,0]:
             return df.iat[i,0]
         else:
-            weight = lev(term, str(df.iat[i,0]), insert_costs, delete_costs, substitute_costs)
-            if weight <= 1:  
-                print("New query term: ", df.iat[i,0])
-                return df.iat[i,0]
-            res[df.iat[i,0]] = weight
+            if len(str(df.iat[i,0])) >= len(term):
+                weight = lev(term, str(df.iat[i,0]), insert_costs, delete_costs, substitute_costs)
+                res[df.iat[i,0]] = weight
     
     sortedWeights = {k: v for k, v in sorted(res.items(), key=lambda item: item[1])}
     
