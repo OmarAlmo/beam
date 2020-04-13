@@ -3,6 +3,8 @@ from flask import Flask, render_template, request
 import models.boolean
 import models.vsm
 from middleware.utils import retrieve_documents, RELEVANT_DOCS, NRELEVANT_DOCS
+import middleware.query_completion as completion
+import json
 
 app = Flask(__name__)
 
@@ -98,6 +100,18 @@ def relevance():
     print("RELEVANT:", RELEVANT_DOCS)
     print("NRELEVANT:", NRELEVANT_DOCS)
     return ('')
+
+
+@app.route('/')
+def get_query_completion_output():
+    globalexpansion = request.form.get('globalexpansion')
+    corpus = request.form['corpus']
+    query = request.form['query']
+    tmpquery=query
+    query="".join(models.vsm.process_query(corpus, query, globalexpansion))
+    tmpquery=tmpquery.split(" ")[-1]
+    result= completion.active_query_completion(corpus,tmpquery)
+    return result
 
 
 if __name__ == "__main__":
