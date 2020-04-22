@@ -118,6 +118,25 @@ def get_bigram(corpus,term):
         t1 = bigramList[0]
         t2 = bigramList[1]
 
+def get_bigramDict_by_word(corpus,keyword):
+    bigramDict={}
+    if corpus == 'uottawa':
+        df = pd.read_csv('./uottawa_bigram.csv')
+    else:
+        df = pd.read_csv('./reuters_bigram.csv')
+    
+    for i in range(0, df.shape[0]):
+        bigram = df.iat[i,1]
+        bigramList = ast.literal_eval(bigram)
+        bigram2 = df.iat[i,2]
+        print(bigram2)
+        bigramList2 = ast.literal_eval(bigram2)
+        t1 = bigramList[0]
+        if(t1==keyword):
+            bigramDict[bigram]=[bigramList[1],len(bigramList2)]
+    return bigramDict
+
+
 # def get_synonym(term):
 #     synonyms = set()
 #     for syn in wordnet.synsets(term):
@@ -142,8 +161,8 @@ def get_synonym(term):
         sim = t1.wup_similarity(t2)
         output[t2] = sim
 
-    sortedOutput = {k: v for k, v in sorted(output.items(), key=lambda item: item[1], reverse=True)}
-    
+    sortedOutput = {key: value for (key, value) in sorted(output.items())}
+    print("sortedOutput:", sortedOutput)
     res = []
     for syn in sortedOutput:
         res.append(syn.name().split('.')[0])
@@ -151,6 +170,21 @@ def get_synonym(term):
     res = list(dict.fromkeys(res))
     res.remove(term)
     return res
+
+# print("get(synonyms('wheat'))")
+# print(get_synonym('wheat'))
+
+# print("get_synonym('bank'))")
+# print(get_synonym('bank'))
+
+# print("get_synonym('coffee')")
+# print(get_synonym('coffee'))
+
+# print("get_synonym('stock')")
+# print(get_synonym('stock'))
+
+# print("get_synonym('oil'))")
+# print(get_synonym('oil'))
 
 
 def filter_documents_topic(ids,topic, model):

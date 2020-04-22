@@ -9,3 +9,4 @@ Recourse links:
 [7]https://docs.python.org/3.8/library/stdtypes.html#set-types-set-frozenset
 [8]https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html
 [9]https://www.geeksforgeeks.org/python-convert-list-of-string-to-list-of-list/
+[10]https://weighted-levenshtein.readthedocs.io/en/master/
