@@ -22,9 +22,11 @@ def active_query_completion(corpus,word):
     Resultlist=[]
     todelete=None
     bigramDict=utils.get_bigramDict_by_word(corpus,word)
+    # print(bigramDict)
     for i in range(0,5):
         
         maxNum=get_max_frequence(bigramDict)
+        print(maxNum)
         if maxNum==0:
             break
         for x,y in bigramDict.items():
@@ -36,3 +38,18 @@ def active_query_completion(corpus,word):
     return Resultlist
 
     
+
+# print("active_query_completion('reuters', 'canada')")
+# print(active_query_completion('reuters', 'canada'))
+
+# print("active_query_completion('reuters', 'bank')")
+# print(active_query_completion('reuters', 'bank'))
+
+# print("active_query_completion('reuters', 'coffee')")
+# print(active_query_completion('reuters', 'coffee'))
+
+# print("active_query_completion('reuters', 'stock')")
+# print(active_query_completion('reuters', 'stock'))
+
+# print("active_query_completion('reuters', 'oil')")
+print(active_query_completion('reuters', 'oil'))

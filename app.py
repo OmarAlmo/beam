@@ -102,16 +102,16 @@ def relevance():
     print("NRELEVANT:", NRELEVANT_DOCS)
     return ''
 
-@app.route('/autocomplete', methods=['POST'])
-def autocomplete():
-    req = request.data.decode("utf-8").split(',')
-    query = str(req[0]).split(' ')[-2]
-    corpus = req[1]
+# @app.route('/autocomplete', methods=['POST'])
+# def autocomplete():
+#     req = request.data.decode("utf-8").split(',')
+#     query = str(req[0]).split(' ')[-2]
+#     corpus = req[1]
 
-    res = completion.active_query_completion(corpus, query)
-    print("QUERY SUGGESTION:", " ".join(res))
+#     res = completion.active_query_completion(corpus, query)
+#     print("QUERY SUGGESTION:", " ".join(res))
 
-    return jsonify(res)
+#     return jsonify(res)
 
 
 @app.route('/')

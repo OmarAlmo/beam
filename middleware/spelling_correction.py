@@ -36,5 +36,5 @@ def check_word(corpus, term):
                 res[df.iat[i,0]] = weight
     
     sortedWeights = {k: v for k, v in sorted(res.items(), key=lambda item: item[1])}
-    
+    print("new spelling: ", next(iter(sortedWeights)))
     return (next(iter(sortedWeights)))
